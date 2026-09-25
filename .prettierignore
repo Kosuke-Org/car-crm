@@ -1,0 +1,24 @@
+.next
+.next-e2e
+build
+coverage
+node_modules
+public
+.husky
+.git
+*.log
+.vercel
+.env*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lock
+lib/db/migrations
+cli
+playwright-report
+test-results
+e2e/.auth
+
+# Symlink to CLAUDE.md. prettier errors on an explicitly-passed symlink,
+# which is how lint-staged invokes it, so every commit staging this file fails.
+AGENTS.md
