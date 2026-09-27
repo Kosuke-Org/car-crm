@@ -132,6 +132,7 @@ export function Home() {
       <section className="from-accent/60 bg-gradient-to-b to-transparent px-4 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20">
         <div className="container mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-20">
           <motion.div
+            className="min-w-0"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -164,20 +165,24 @@ export function Home() {
           </motion.div>
 
           <motion.div
+            className="min-w-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <Card>
               <CardContent className="space-y-5">
-                <div className="flex items-baseline justify-between">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <p className="text-sm font-medium">Today · Kingsway Motors</p>
                   <p className="text-muted-foreground text-xs">4 waiting · longest 11 min</p>
                 </div>
 
                 <ul className="space-y-4">
                   {todaysLeads.map((lead) => (
-                    <li key={lead.name} className="flex items-start justify-between gap-4">
+                    <li
+                      key={lead.name}
+                      className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+                    >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
                           {lead.name} <span className="text-muted-foreground">·</span>{' '}
@@ -187,7 +192,7 @@ export function Home() {
                       </div>
                       <span
                         className={cn(
-                          'shrink-0 rounded-md px-2 py-1 text-xs font-medium',
+                          'w-fit shrink-0 rounded-md px-2 py-1 text-xs font-medium',
                           lead.tone
                         )}
                       >
