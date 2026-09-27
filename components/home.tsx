@@ -138,17 +138,17 @@ export function Home() {
             transition={{ duration: 0.5 }}
           >
             <p className="text-primary mb-5 text-sm font-medium tracking-wide">
-              CRM for car retail — one pitch or twenty rooftops
+              One pitch or twenty rooftops
             </p>
 
             <h1 className="max-w-xl text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
-              Every enquiry answered before it goes cold
+              The definitive CRM for your dealership
             </h1>
 
             <p className="text-muted-foreground mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
               AutoYard keeps leads, stock, test drives and part-ex on one list your whole floor
-              works from. No buyer waits until Monday because their email landed in a mailbox nobody
-              owns.
+              works from, so every enquiry is answered before it goes cold — no buyer waiting until
+              Monday because their email landed in a mailbox nobody owns.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
