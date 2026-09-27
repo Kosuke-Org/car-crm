@@ -54,14 +54,13 @@ const replaced = [
   'The sales@ inbox three people half-watch',
   'The stock spreadsheet that is always one price behind',
   'The whiteboard of this weekend’s test drives',
-  'Four WhatsApp threads per deal',
   'The Monday report somebody rebuilds by hand',
 ];
 
 const capabilities = [
   {
     title: 'One queue for every enquiry',
-    body: 'Portals, your own website forms, WhatsApp, missed calls and walk-ins land in the same list, de-duplicated and stamped with the car the buyer was actually looking at. Response clocks start the second it arrives, so nothing quietly ages over a weekend.',
+    body: 'Portals, website forms, WhatsApp, missed calls and walk-ins land in one list, stamped with the car the buyer was looking at. The response clock starts the second it arrives.',
     wide: true,
   },
   {
@@ -74,7 +73,7 @@ const capabilities = [
   },
   {
     title: 'Part-ex and paperwork on one record',
-    body: 'Valuation, finance quote and order form sit with the deal, signed from a phone in the showroom.',
+    body: 'Valuation, finance quote and order form sit with the deal, signed from a phone on the floor.',
   },
   {
     title: 'Numbers per rooftop',
@@ -86,22 +85,22 @@ const faqs = [
   {
     question: 'Does it replace our DMS?',
     answer:
-      'No. AutoYard handles everything up to the signature — enquiries, stock presentation, appointments, part-ex and the order form. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
+      'No. AutoYard covers everything up to the signature. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
   },
   {
     question: 'How long until we are actually using it?',
     answer:
-      'A single site is usually running the same week: we import stock and open enquiries, connect your portals and spend two short sessions with the sales team. Groups take longer, mostly because of portal credentials.',
+      'A single site is usually running the same week. Groups take longer, mostly waiting on portal credentials.',
   },
   {
     question: 'We advertise on several portals. Does that still work?',
     answer:
-      'Yes. Listings go out and leads come back on the major marketplaces, plus your own site. Price and availability change in one place.',
+      'Yes. Listings go out and leads come back on the major marketplaces and your own site. Price changes in one place.',
   },
   {
     question: 'Is it worth it for two salespeople?',
     answer:
-      'That is most of our customers. Small pitches feel the response-time difference first, because there is nobody spare to chase a mailbox on a Saturday.',
+      'That is most of our customers. Small pitches feel it first — nobody is spare to chase a mailbox on a Saturday.',
   },
 ];
 
@@ -146,9 +145,8 @@ export function Home() {
             </h1>
 
             <p className="text-muted-foreground mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
-              AutoYard keeps leads, stock, test drives and part-ex on one list your whole floor
-              works from, so every enquiry is answered before it goes cold — no buyer waiting until
-              Monday because their email landed in a mailbox nobody owns.
+              Leads, stock, test drives and part-ex on one list your whole floor works from — so no
+              enquiry goes cold.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -159,8 +157,7 @@ export function Home() {
             </div>
 
             <p className="text-muted-foreground mt-4 max-w-md text-sm leading-relaxed">
-              Import from your DMS or a CSV on day one. No card, and no setup call unless you want
-              one.
+              Import from your DMS or a CSV on day one. No card needed.
             </p>
           </motion.div>
 
@@ -219,9 +216,8 @@ export function Home() {
               One list instead of five tabs
             </h2>
             <p className="text-muted-foreground mt-5 text-base leading-relaxed">
-              Most forecourts do not lose deals on price. They lose them in the gap between an
-              enquiry arriving and somebody picking it up. AutoYard closes that gap by keeping the
-              whole sale — first message to signed order — in one place.
+              Forecourts rarely lose deals on price. They lose them in the gap between an enquiry
+              arriving and somebody picking it up.
             </p>
           </div>
 
@@ -266,11 +262,10 @@ export function Home() {
       <section className="px-4 py-16 sm:px-6 sm:py-24">
         <figure className="container mx-auto max-w-3xl">
           <blockquote className="text-xl leading-relaxed font-medium text-balance sm:text-2xl">
-            “Weekend enquiries used to sit nine hours before anyone replied. They are minutes now.
-            The part I did not expect: we stopped arguing about who owned which lead.”
+            “Weekend enquiries used to sit nine hours before anyone replied. They are minutes now.”
           </blockquote>
           <figcaption className="text-muted-foreground mt-6 text-sm">
-            Marta Ferrante — general manager, Ferrante Auto Group, four sites near Milan
+            Marta Ferrante — general manager, Ferrante Auto Group
           </figcaption>
         </figure>
       </section>
@@ -301,7 +296,7 @@ export function Home() {
               There is an enquiry waiting right now
             </h2>
             <p className="text-primary-foreground/80 mt-4 text-base sm:text-lg">
-              Set up your site, import your stock and answer it from AutoYard today.
+              Import your stock and answer it from AutoYard today.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
