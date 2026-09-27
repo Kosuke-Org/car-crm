@@ -2,16 +2,7 @@
 
 import Link from 'next/link';
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  House,
-  LogOut,
-  Monitor,
-  Shield,
-} from 'lucide-react';
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, House, LogOut, Shield } from 'lucide-react';
 
 import { getInitials } from '@/lib/utils';
 
@@ -108,15 +99,6 @@ export function NavUser() {
                 <Link href="/settings" className="flex w-full cursor-pointer items-center">
                   <BadgeCheck className="mr-2 h-4 w-4" />
                   Account
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/settings/appearance"
-                  className="flex w-full cursor-pointer items-center"
-                >
-                  <Monitor className="mr-2 h-4 w-4" />
-                  Appearance
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

@@ -22,7 +22,6 @@ const routeNames: Record<string, string> = {
   dashboard: 'Dashboard',
   settings: 'Settings',
   billing: 'Billing',
-  appearance: 'Appearance',
   notifications: 'Notifications',
   security: 'Security',
   success: 'Success',

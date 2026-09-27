@@ -15,6 +15,8 @@ import {
   Users,
 } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
+
 import { useOrganization } from '@/hooks/use-organization';
 import { useUser } from '@/hooks/use-user';
 
@@ -30,52 +32,83 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
 const heroStats = [
-  { value: '31%', label: 'more test drives booked' },
-  { value: '4 min', label: 'average lead response time' },
-  { value: '1,200+', label: 'dealerships selling with us' },
+  { value: '31%', label: 'more test drives booked', color: 'text-chart-1' },
+  { value: '4 min', label: 'average lead response time', color: 'text-chart-2' },
+  { value: '1,200+', label: 'dealerships selling with us', color: 'text-chart-5' },
 ];
 
 const pipelineStages = [
-  { stage: 'New leads', count: 42, share: 100 },
-  { stage: 'Contacted', count: 28, share: 68 },
-  { stage: 'Test drive booked', count: 17, share: 41 },
-  { stage: 'Financing sent', count: 9, share: 22 },
-  { stage: 'Sold this week', count: 6, share: 14 },
+  {
+    stage: 'New leads',
+    count: 42,
+    share: 100,
+    color: '[&>[data-slot=progress-indicator]]:bg-chart-1',
+  },
+  {
+    stage: 'Contacted',
+    count: 28,
+    share: 68,
+    color: '[&>[data-slot=progress-indicator]]:bg-chart-2',
+  },
+  {
+    stage: 'Test drive booked',
+    count: 17,
+    share: 41,
+    color: '[&>[data-slot=progress-indicator]]:bg-chart-5',
+  },
+  {
+    stage: 'Financing sent',
+    count: 9,
+    share: 22,
+    color: '[&>[data-slot=progress-indicator]]:bg-chart-4',
+  },
+  {
+    stage: 'Sold this week',
+    count: 6,
+    share: 14,
+    color: '[&>[data-slot=progress-indicator]]:bg-chart-3',
+  },
 ];
 
 const features = [
   {
     icon: MessagesSquare,
+    color: 'bg-chart-1/15 text-chart-1',
     title: 'One inbox for every lead',
     description:
       'Autotrader, your website, WhatsApp, phone and walk-ins land in a single queue with automated follow-ups that never let a buyer go cold.',
   },
   {
     icon: Car,
+    color: 'bg-chart-2/15 text-chart-2',
     title: 'Inventory that sells itself',
     description:
       'VIN decoding, photo sets, reconditioning status and days-on-lot, synced to every listing portal the moment a price changes.',
   },
   {
     icon: CalendarClock,
+    color: 'bg-chart-5/15 text-chart-5',
     title: 'Test drives on autopilot',
     description:
       'Buyers pick a slot from your live calendar, get reminders by SMS, and your salespeople walk in with the car already prepped.',
   },
   {
     icon: FileSignature,
+    color: 'bg-chart-3/15 text-chart-3',
     title: 'Deal desk and e-signature',
     description:
       'Build the quote, add trade-in valuation and finance options, then send the contract for signature without leaving the deal.',
   },
   {
     icon: BarChart3,
+    color: 'bg-chart-4/20 text-chart-4',
     title: 'Numbers your GM trusts',
     description:
       'Gross per unit, source ROI, aging stock and salesperson performance, refreshed live instead of stitched together in a spreadsheet.',
   },
   {
     icon: Users,
+    color: 'bg-primary/10 text-primary',
     title: 'Built for multi-rooftop groups',
     description:
       'Share stock across locations, route leads to the nearest showroom and keep permissions tight for every team and brand.',
@@ -85,18 +118,21 @@ const features = [
 const workflow = [
   {
     step: '01',
+    color: 'bg-chart-1 text-primary-foreground',
     title: 'Capture',
     description:
       'Every enquiry is de-duplicated, enriched with the vehicle they viewed and assigned to a salesperson in seconds.',
   },
   {
     step: '02',
+    color: 'bg-chart-2 text-primary-foreground',
     title: 'Convert',
     description:
       'Guided follow-up sequences, saved replies and test-drive booking links turn browsers into showroom appointments.',
   },
   {
     step: '03',
+    color: 'bg-chart-5 text-primary-foreground',
     title: 'Close',
     description:
       'Quote, trade-in, finance and contract live on one deal record, so handover is paperwork-free and the margin is visible.',
@@ -149,21 +185,21 @@ export function Home() {
 
   return (
     <div className="bg-background min-h-screen w-full pt-[60px]">
-      <section className="px-4 pt-14 pb-16 sm:px-6 sm:pt-24 sm:pb-24">
+      <section className="from-primary/10 via-chart-2/5 bg-gradient-to-br to-transparent px-4 pt-14 pb-16 sm:px-6 sm:pt-24 sm:pb-24">
         <div className="container mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Badge variant="outline" className="mb-6 px-3 py-1 text-xs">
+            <Badge className="bg-primary/10 text-primary hover:bg-primary/10 mb-6 px-3 py-1 text-xs">
               The CRM for people who sell cars
             </Badge>
 
             <h1 className="mb-6 text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl lg:text-6xl">
               Sell more cars.
               <br />
-              Chase fewer leads.
+              <span className="text-primary">Chase fewer leads.</span>
             </h1>
 
             <p className="text-muted-foreground mb-8 max-w-xl text-base leading-relaxed sm:text-lg">
@@ -199,7 +235,9 @@ export function Home() {
             <dl className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
               {heroStats.map((stat) => (
                 <div key={stat.label}>
-                  <dt className="text-2xl font-semibold sm:text-3xl">{stat.value}</dt>
+                  <dt className={cn('text-2xl font-semibold sm:text-3xl', stat.color)}>
+                    {stat.value}
+                  </dt>
                   <dd className="text-muted-foreground mt-1 text-sm">{stat.label}</dd>
                 </div>
               ))}
@@ -218,7 +256,7 @@ export function Home() {
                     <p className="text-sm font-medium">Showroom pipeline</p>
                     <p className="text-muted-foreground text-xs">Kingsway Motors · this week</p>
                   </div>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="bg-chart-2/15 text-chart-2 hover:bg-chart-2/15 text-xs">
                     Live
                   </Badge>
                 </div>
@@ -230,13 +268,13 @@ export function Home() {
                         <span className="text-muted-foreground">{item.stage}</span>
                         <span className="font-medium">{item.count}</span>
                       </div>
-                      <Progress value={item.share} className="h-2" />
+                      <Progress value={item.share} className={cn('bg-muted h-2', item.color)} />
                     </div>
                   ))}
                 </div>
 
                 <div className="border-border flex items-center gap-3 border-t pt-4">
-                  <Gauge className="text-muted-foreground h-4 w-4" />
+                  <Gauge className="text-chart-1 h-4 w-4" />
                   <p className="text-muted-foreground text-sm">
                     Average days on lot <span className="text-foreground font-medium">24</span>,
                     down from 39
@@ -276,7 +314,14 @@ export function Home() {
               >
                 <Card className="h-full">
                   <CardContent className="space-y-3">
-                    <feature.icon className="text-muted-foreground h-5 w-5" />
+                    <div
+                      className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-lg',
+                        feature.color
+                      )}
+                    >
+                      <feature.icon className="h-5 w-5" />
+                    </div>
                     <h3 className="text-lg font-semibold">{feature.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       {feature.description}
@@ -289,7 +334,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-16 sm:px-6 sm:py-24">
+      <section className="bg-accent/40 px-4 py-16 sm:px-6 sm:py-24">
         <div className="container mx-auto max-w-6xl">
           <motion.h2
             className="mb-12 max-w-2xl text-3xl font-bold tracking-tight sm:mb-16 sm:text-4xl"
@@ -310,7 +355,14 @@ export function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <p className="text-muted-foreground mb-3 text-sm font-medium">{item.step}</p>
+                <div
+                  className={cn(
+                    'mb-4 flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold',
+                    item.color
+                  )}
+                >
+                  {item.step}
+                </div>
                 <h3 className="mb-3 text-xl font-semibold">{item.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
               </motion.div>
@@ -368,7 +420,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-16 sm:px-6 sm:py-28">
+      <section className="from-primary/10 via-chart-5/5 bg-gradient-to-tr to-transparent px-4 py-16 sm:px-6 sm:py-28">
         <div className="container mx-auto max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

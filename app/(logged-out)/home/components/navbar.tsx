@@ -12,7 +12,6 @@ import { useOrganization } from '@/hooks/use-organization';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useUserAvatar } from '@/hooks/use-user-avatar';
 
-import { ThemeToggle } from '@/components/theme-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -134,12 +133,10 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
               </Link>
             </div>
           )}
-          <ThemeToggle />
         </nav>
 
         {/* Mobile navigation */}
         <div className="flex items-center gap-3 md:hidden">
-          <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
