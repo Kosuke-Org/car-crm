@@ -13,7 +13,12 @@ import {
 } from 'drizzle-orm/pg-core';
 
 // Enums
-export const taskPriorityEnum = pgEnum('task_priority', ['low', 'medium', 'high']);
+export const customerStatusEnum = pgEnum('customer_status', [
+  'lead',
+  'prospect',
+  'active',
+  'inactive',
+]);
 export const orgRoleEnum = pgEnum('org_role', ['owner', 'admin', 'member']);
 export const orderStatusEnum = pgEnum('order_status', [
   'pending',
@@ -214,18 +219,24 @@ export const activityLogs = pgTable('activity_logs', {
   metadata: text('metadata'), // JSON string for additional context
 });
 
-// Tasks - Simple todo list functionality with organization support
-export const tasks = pgTable('tasks', {
+// Customers - Dealership customer records scoped to an organization
+export const customers = pgTable('customers', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').notNull(),
-  organizationId: uuid('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
-  }), // Nullable for personal tasks
-  title: text('title').notNull(),
-  description: text('description'),
-  completed: text('completed').notNull().default('false'), // 'true' or 'false' as text
-  priority: taskPriorityEnum('priority').notNull().default('medium'),
-  dueDate: timestamp('due_date'),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
+  userId: uuid('user_id').notNull(), // Sales rep who owns the relationship
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone'),
+  city: text('city'),
+  status: customerStatusEnum('status').notNull().default('lead'),
+  interestedInModel: text('interested_in_model'), // Vehicle model the customer is shopping for
+  notes: text('notes'),
+  lastContactedAt: timestamp('last_contacted_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -438,6 +449,17 @@ export const documentRelations = relations(documents, ({ one }) => ({
   }),
 }));
 
+export const customerRelations = relations(customers, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [customers.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [customers.userId],
+    references: [users.id],
+  }),
+}));
+
 export const chatSessionRelations = relations(chatSessions, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [chatSessions.organizationId],
@@ -509,8 +531,8 @@ export type OrgSubscription = InferSelectModel<typeof orgSubscriptions>;
 export type NewOrgSubscription = InferInsertModel<typeof orgSubscriptions>;
 export type ActivityLog = InferSelectModel<typeof activityLogs>;
 export type NewActivityLog = InferInsertModel<typeof activityLogs>;
-export type Task = InferSelectModel<typeof tasks>;
-export type NewTask = InferInsertModel<typeof tasks>;
+export type Customer = InferSelectModel<typeof customers>;
+export type NewCustomer = InferInsertModel<typeof customers>;
 export type Organization = InferSelectModel<typeof organizations>;
 export type NewOrganization = InferInsertModel<typeof organizations>;
 export type OrgMembership = InferSelectModel<typeof orgMemberships>;
@@ -536,7 +558,7 @@ export type SystemConfig = InferSelectModel<typeof systemConfig>;
 export type NewSystemConfig = InferInsertModel<typeof systemConfig>;
 
 // Infer enum types from schema
-export type TaskPriority = (typeof taskPriorityEnum.enumValues)[number];
+export type CustomerStatus = (typeof customerStatusEnum.enumValues)[number];
 export type OrgRole = (typeof orgRoleEnum.enumValues)[number];
 export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
 export type ChatMessageRole = (typeof chatMessageRoleEnum.enumValues)[number];

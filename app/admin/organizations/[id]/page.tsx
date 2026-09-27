@@ -431,7 +431,7 @@ export default function OrgDetailPage({ params }: OrgDetailPageProps) {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete {organization.name} and all related data (memberships,
-              tasks, orders). This action cannot be undone.
+              customers, orders). This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

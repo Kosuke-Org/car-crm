@@ -20,7 +20,7 @@ test('an anonymous request to an org dashboard is redirected to sign-in', async 
   await expect(page.getByText('Sign in to AutoYard')).toBeVisible();
 
   // And nothing from the protected page leaked into the response.
-  await expect(page.getByRole('heading', { name: 'Component Showcase' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Dealership overview' })).toHaveCount(0);
 });
 
 test('an anonymous request to account settings is redirected to sign-in', async ({ page }) => {

@@ -23,8 +23,8 @@ test('the org dashboard renders real content for a member', async ({ page }) => 
   await expect(page).toHaveURL(new RegExp(`/org/${SEEDED_USERS.jane.orgSlug}/dashboard$`));
 
   // Real page content.
-  await expect(page.getByRole('heading', { name: 'Component Showcase' })).toBeVisible();
-  await expect(page.getByText('Total Users')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dealership overview' })).toBeVisible();
+  await expect(page.getByText('Total customers')).toBeVisible();
 
   // The org-scoped shell hydrated with the right organization.
   await expect(orgSwitcher(page)).toContainText(SEEDED_USERS.jane.orgName);

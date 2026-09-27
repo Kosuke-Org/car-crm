@@ -437,7 +437,7 @@ export const adminRouter = router({
     }),
 
     /**
-     * Delete organization (cascades to memberships, invitations, orders, tasks, etc.)
+     * Delete organization (cascades to memberships, invitations, orders, customers, etc.)
      */
     delete: superAdminProcedure.input(adminDeleteOrgSchema).mutation(async ({ input }) => {
       try {
