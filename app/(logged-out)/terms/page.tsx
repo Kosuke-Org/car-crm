@@ -139,8 +139,8 @@ export default function TermsPage() {
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
                 If you have any questions about these Terms of Service, please contact us at{' '}
-                <a href="mailto:legal@kosuketemplate.com" className="text-primary hover:underline">
-                  legal@kosuketemplate.com
+                <a href="mailto:legal@dealerflow.com" className="text-primary hover:underline">
+                  legal@dealerflow.com
                 </a>
               </p>
             </CardContent>

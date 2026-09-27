@@ -4,8 +4,6 @@ import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 
-import { AppVersion } from '@/components/app-version';
-
 interface FooterProps {
   className?: string;
 }
@@ -18,7 +16,6 @@ export default function Footer({ className }: FooterProps) {
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} DealerFlow. All rights reserved.
           </p>
-          <AppVersion className="text-muted-foreground/60 text-xs" />
         </div>
         <div className="flex items-center gap-4">
           <Link

@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetTitle,
@@ -203,14 +204,18 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
                 ) : (
                   // Mobile navigation for logged-out users
                   <>
-                    <Link href="/sign-in">
-                      <Button variant="ghost" className="w-full justify-start">
-                        Log in
-                      </Button>
-                    </Link>
-                    <Link href="/sign-up">
-                      <Button className="w-full">Sign up</Button>
-                    </Link>
+                    <SheetClose asChild>
+                      <Link href="/sign-in">
+                        <Button variant="ghost" className="w-full justify-start">
+                          Log in
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/sign-up">
+                        <Button className="w-full">Sign up</Button>
+                      </Link>
+                    </SheetClose>
                   </>
                 )}
               </nav>

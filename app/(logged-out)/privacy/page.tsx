@@ -97,11 +97,8 @@ export default function PrivacyPage() {
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
                 If you have any questions about this Privacy Policy, please contact us at{' '}
-                <a
-                  href="mailto:privacy@kosuketemplate.com"
-                  className="text-primary hover:underline"
-                >
-                  privacy@kosuketemplate.com
+                <a href="mailto:privacy@dealerflow.com" className="text-primary hover:underline">
+                  privacy@dealerflow.com
                 </a>
               </p>
             </CardContent>
