@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
 import {
@@ -21,6 +22,7 @@ import { useChatSession } from '@/hooks/use-chat';
 import { useOrganization } from '@/hooks/use-organization';
 import { usePermissions } from '@/hooks/use-permissions';
 
+import { Logo } from '@/components/logo';
 import { NavMain } from '@/components/nav-main';
 import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
@@ -122,7 +124,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <>
       <Sidebar variant="inset" {...props}>
-        <SidebarHeader>
+        <SidebarHeader className="gap-3">
+          <Link href="/" aria-label="AutoYard home" className="px-2 pt-1">
+            <Logo />
+          </Link>
           <SidebarOrgSwitcher />
         </SidebarHeader>
         <SidebarContent>

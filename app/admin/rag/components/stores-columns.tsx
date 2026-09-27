@@ -77,7 +77,7 @@ export function getStoresColumns({
           <>
             {hasDangling ? (
               <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                <AlertTriangle className="h-3 w-3 text-amber-500" />
+                <AlertTriangle className="text-chart-2 h-3 w-3" />
                 {danglingCount} dangling documents
               </div>
             ) : (
@@ -115,9 +115,9 @@ export function getStoresColumns({
                         e.stopPropagation();
                         onDeleteAllDocuments(name, displayName);
                       }}
-                      className="text-amber-600 focus:text-amber-600"
+                      className="text-chart-2 focus:text-chart-2"
                     >
-                      <FileX2 className="h-4 w-4 text-amber-600" />
+                      <FileX2 className="text-chart-2 h-4 w-4" />
                       Delete All Documents
                     </DropdownMenuItem>
                     {hasDanglingDocs && (
@@ -126,9 +126,9 @@ export function getStoresColumns({
                           e.stopPropagation();
                           onDeleteDanglingDocuments(name, displayName);
                         }}
-                        className="text-amber-600 focus:text-amber-600"
+                        className="text-chart-2 focus:text-chart-2"
                       >
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <AlertTriangle className="text-chart-2 h-4 w-4" />
                         Delete Dangling Documents ({danglingCount})
                       </DropdownMenuItem>
                     )}

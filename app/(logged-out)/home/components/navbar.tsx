@@ -193,7 +193,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
                       </Link>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full justify-start"
                         onClick={() => handleSignOut()}
                       >
                         <LogOut className="mr-2 h-4 w-4" />

@@ -23,12 +23,11 @@ export const WelcomeEmail = ({
           Welcome, {firstName}! 🎉
         </Text>
         <Text className="mb-4 text-base leading-relaxed text-stone-600">
-          Thank you for joining AutoYard! We&apos;re excited to have you on board. Your account (
-          <strong>{email}</strong>) has been successfully created.
+          Thank you for joining AutoYard! Your account (<strong>{email}</strong>) is ready.
         </Text>
         <Text className="mb-0 text-base leading-relaxed text-stone-600">
-          You now have access to a powerful Next.js template with authentication, billing, beautiful
-          UI components, and much more.
+          Import your stock and open enquiries, and your whole floor can work from one list instead
+          of a shared inbox.
         </Text>
       </Section>
 
@@ -39,7 +38,7 @@ export const WelcomeEmail = ({
           {dashboardUrl && (
             <Button
               href={dashboardUrl}
-              className="mr-3 mb-2 inline-block rounded-lg bg-stone-900 px-6 py-3 font-semibold text-white no-underline"
+              className="mr-3 mb-2 inline-block rounded-lg bg-[#005f63] px-6 py-3 font-semibold text-white no-underline"
             >
               Go to Dashboard
             </Button>
@@ -47,7 +46,7 @@ export const WelcomeEmail = ({
           {settingsUrl && (
             <Button
               href={settingsUrl}
-              className="mb-2 ml-3 inline-block rounded-lg bg-stone-600 px-6 py-3 font-semibold text-white no-underline"
+              className="mb-2 ml-3 inline-block rounded-lg border border-solid border-[#005f63] bg-white px-6 py-3 font-semibold text-[#005f63] no-underline"
             >
               Account Settings
             </Button>
@@ -60,18 +59,15 @@ export const WelcomeEmail = ({
         <Text className="mb-4 text-xl font-semibold text-stone-900">What&apos;s included:</Text>
 
         {[
-          'Next.js 16 with App Router and TypeScript',
-          'Better Auth Authentication with user management',
-          'Stripe Billing integration for subscriptions',
-          'Beautiful Shadcn UI components',
-          'PostgreSQL database with Drizzle ORM',
-          'Dark/Light mode support',
-          'File uploads with Vercel Blob',
-          'Error monitoring with Sentry',
-          'React Email for beautiful email templates',
+          'Every enquiry in one queue, with a response clock',
+          'Vehicle stock with recon status and days on lot',
+          'Test drives booked straight into the diary',
+          'Part-ex valuations and finance quotes on the deal',
+          'Order paperwork signed from a phone in the showroom',
+          'Reporting by salesperson and by rooftop',
         ].map((feature, index) => (
           <Text key={index} className="mb-3 flex items-center text-sm text-stone-600">
-            <span className="mr-3 font-bold text-stone-900">✓</span>
+            <span className="mr-3 font-bold text-[#005f63]">✓</span>
             {feature}
           </Text>
         ))}

@@ -36,8 +36,8 @@ export default function OTPEmail({ otp, type }: OTPEmailProps) {
       </Section>
 
       {/* OTP Code Section */}
-      <Section className="mb-8 rounded-lg bg-stone-50 p-8 text-center">
-        <Text className="m-0 font-mono text-4xl font-bold tracking-widest text-stone-900">
+      <Section className="mb-8 rounded-lg border border-solid border-[#cfe3e3] bg-[#f0f7f7] p-8 text-center">
+        <Text className="m-0 font-mono text-4xl font-bold tracking-widest text-[#005f63]">
           {otp}
         </Text>
       </Section>
