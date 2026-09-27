@@ -6,12 +6,12 @@ import { useParams, useRouter } from 'next/navigation';
 
 import {
   Bot,
-  CheckSquare,
   File,
   Loader2,
   ReceiptText,
   Shield,
   SquareTerminal,
+  SquareUser,
   Trash2,
 } from 'lucide-react';
 
@@ -75,9 +75,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         isActive: true,
       },
       {
-        title: 'Tasks',
-        url: `${orgPrefix}/tasks`,
-        icon: CheckSquare,
+        title: 'Customers',
+        url: `${orgPrefix}/customers`,
+        icon: SquareUser,
       },
       {
         title: 'Orders',

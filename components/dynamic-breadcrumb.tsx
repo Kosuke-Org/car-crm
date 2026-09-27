@@ -27,7 +27,7 @@ const routeNames: Record<string, string> = {
   security: 'Security',
   success: 'Success',
   account: 'Account',
-  tasks: 'Tasks',
+  customers: 'Customers',
   orders: 'Orders',
   documents: 'Documents',
   assistant: 'Assistant',

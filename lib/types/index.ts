@@ -6,7 +6,8 @@
 // User-related types
 export type { NotificationSettings } from './user';
 
-export type { TaskPriority } from './task';
+// Customer-related types
+export type { CustomerStatus } from '@/lib/db/schema';
 
 // Order-related types
 export type {

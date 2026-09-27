@@ -10,5 +10,5 @@ test('a seeded user can sign in and lands on their organization dashboard', asyn
   await signIn(page, SEEDED_USERS.jane.email);
 
   await expect(page).toHaveURL(new RegExp(`/org/${SEEDED_USERS.jane.orgSlug}/dashboard$`));
-  await expect(page.getByRole('heading', { name: 'Component Showcase' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dealership overview' })).toBeVisible();
 });

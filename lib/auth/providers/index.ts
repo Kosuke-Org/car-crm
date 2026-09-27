@@ -198,7 +198,12 @@ export const auth = betterAuth({
       maxAge: 60 * 5, // 5 minutes - cache session in cookie to avoid Redis lookups
     },
   },
-  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL!],
+  trustedOrigins: [
+    process.env.NEXT_PUBLIC_APP_URL!,
+    ...(process.env.ADDITIONAL_TRUSTED_ORIGINS?.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean) ?? []),
+  ],
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   emailVerification: {

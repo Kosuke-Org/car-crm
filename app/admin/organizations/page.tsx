@@ -174,7 +174,7 @@ export default function AdminOrganizationsPage() {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               {orgToDelete &&
-                `Are you sure you want to delete "${orgToDelete.name}"? This action cannot be undone and will cascade delete all memberships, tasks, and orders.`}
+                `Are you sure you want to delete "${orgToDelete.name}"? This action cannot be undone and will cascade delete all memberships, customers, and orders.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
