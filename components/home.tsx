@@ -3,42 +3,141 @@
 import Link from 'next/link';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Code2, Database, Lock, Rocket, Sparkles, Star, Zap } from 'lucide-react';
-
-import { TechLogo } from '@/app/(logged-out)/home/components/tech-card';
-import { technologies } from '@/app/(logged-out)/home/data/technologies';
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarClock,
+  Car,
+  FileSignature,
+  Gauge,
+  MessagesSquare,
+  Rocket,
+  Users,
+} from 'lucide-react';
 
 import { useOrganization } from '@/hooks/use-organization';
 import { useUser } from '@/hooks/use-user';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
-const coreFeatures = [
+const heroStats = [
+  { value: '31%', label: 'more test drives booked' },
+  { value: '4 min', label: 'average lead response time' },
+  { value: '1,200+', label: 'dealerships selling with us' },
+];
+
+const pipelineStages = [
+  { stage: 'New leads', count: 42, share: 100 },
+  { stage: 'Contacted', count: 28, share: 68 },
+  { stage: 'Test drive booked', count: 17, share: 41 },
+  { stage: 'Financing sent', count: 9, share: 22 },
+  { stage: 'Sold this week', count: 6, share: 14 },
+];
+
+const features = [
   {
-    icon: Code2,
-    title: 'Next.js 16 + React 19',
-    description: 'Latest App Router with Server Components, Suspense, and streaming.',
-    metrics: '~3s build time',
+    icon: MessagesSquare,
+    title: 'One inbox for every lead',
+    description:
+      'Autotrader, your website, WhatsApp, phone and walk-ins land in a single queue with automated follow-ups that never let a buyer go cold.',
   },
   {
-    icon: Lock,
-    title: 'Auth & Security',
-    description: 'Better Auth integration with middleware protection and user management.',
-    metrics: 'SOC 2 compliant',
+    icon: Car,
+    title: 'Inventory that sells itself',
+    description:
+      'VIN decoding, photo sets, reconditioning status and days-on-lot, synced to every listing portal the moment a price changes.',
   },
   {
-    icon: Database,
-    title: 'Database & ORM',
-    description: 'Drizzle ORM with PostgreSQL, migrations, and type safety.',
-    metrics: 'Type-safe queries',
+    icon: CalendarClock,
+    title: 'Test drives on autopilot',
+    description:
+      'Buyers pick a slot from your live calendar, get reminders by SMS, and your salespeople walk in with the car already prepped.',
   },
   {
-    icon: Zap,
-    title: 'Billing Ready',
-    description: 'Stripe integration for subscriptions, webhooks, and payments.',
-    metrics: 'PCI compliant',
+    icon: FileSignature,
+    title: 'Deal desk and e-signature',
+    description:
+      'Build the quote, add trade-in valuation and finance options, then send the contract for signature without leaving the deal.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Numbers your GM trusts',
+    description:
+      'Gross per unit, source ROI, aging stock and salesperson performance, refreshed live instead of stitched together in a spreadsheet.',
+  },
+  {
+    icon: Users,
+    title: 'Built for multi-rooftop groups',
+    description:
+      'Share stock across locations, route leads to the nearest showroom and keep permissions tight for every team and brand.',
+  },
+];
+
+const workflow = [
+  {
+    step: '01',
+    title: 'Capture',
+    description:
+      'Every enquiry is de-duplicated, enriched with the vehicle they viewed and assigned to a salesperson in seconds.',
+  },
+  {
+    step: '02',
+    title: 'Convert',
+    description:
+      'Guided follow-up sequences, saved replies and test-drive booking links turn browsers into showroom appointments.',
+  },
+  {
+    step: '03',
+    title: 'Close',
+    description:
+      'Quote, trade-in, finance and contract live on one deal record, so handover is paperwork-free and the margin is visible.',
+  },
+];
+
+const testimonials = [
+  {
+    quote:
+      'We were losing weekend leads in a shared mailbox. Within a month our response time went from nine hours to four minutes and September was our best month ever.',
+    name: 'Marta Ferrante',
+    role: 'General Manager, Ferrante Auto Group',
+  },
+  {
+    quote:
+      'Four rooftops, one stock list, one pipeline. I can finally see which channel actually pays for itself before I renew the spend.',
+    name: 'Daniel Okafor',
+    role: 'Owner, Northline Motors',
+  },
+];
+
+const faqs = [
+  {
+    question: 'How long does it take to get running?',
+    answer:
+      'Most dealerships are live in under a week. We import your stock, contacts and open deals, connect your listing portals and train the team in two short sessions.',
+  },
+  {
+    question: 'Will it work with the portals we already advertise on?',
+    answer:
+      'Yes. Listings and leads sync both ways with the major marketplaces, plus your own website forms, so pricing and availability stay identical everywhere.',
+  },
+  {
+    question: 'Can independent sellers use it, or is it only for big groups?',
+    answer:
+      'Both. A single-site dealer with two salespeople gets the same pipeline, inventory and follow-up automation as a group running a dozen rooftops.',
+  },
+  {
+    question: 'What about our existing finance and DMS providers?',
+    answer:
+      'Deals export to your DMS and finance partners, so the desk keeps its current approval flow while the customer-facing work happens here.',
   },
 ];
 
@@ -50,131 +149,136 @@ export function Home() {
 
   return (
     <div className="bg-background min-h-screen w-full pt-[60px]">
-      {/* Hero Section - Terminal First */}
-      <section className="px-4 pt-12 pb-16 sm:px-6 sm:pt-20 sm:pb-32">
-        <div className="container mx-auto max-w-6xl">
-          {/* Main headline */}
+      <section className="px-4 pt-14 pb-16 sm:px-6 sm:pt-24 sm:pb-24">
+        <div className="container mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
           <motion.div
-            className="mb-8 text-center sm:mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Badge
-                variant="outline"
-                className="relative mb-4 cursor-default overflow-hidden px-2 py-1 text-xs sm:mb-6 sm:px-3"
-              >
-                {/* Shine effect */}
-                <motion.div
-                  className="absolute inset-0 -top-1 -bottom-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '200%' }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: 'easeInOut',
-                  }}
-                />
-                <Sparkles className="mr-1 h-3 w-3" />
-                Production Ready
-              </Badge>
-            </motion.div>
+            <Badge variant="outline" className="mb-6 px-3 py-1 text-xs">
+              The CRM for people who sell cars
+            </Badge>
 
-            <h1 className="mb-4 px-2 text-3xl leading-tight font-bold tracking-tight sm:mb-6 sm:text-5xl lg:text-7xl">
-              Skip the boilerplate
+            <h1 className="mb-6 text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              Sell more cars.
               <br />
-              Ship features
+              Chase fewer leads.
             </h1>
 
-            <p className="text-muted-foreground mx-auto mb-6 max-w-2xl px-2 font-sans text-base sm:mb-8 sm:text-lg lg:text-xl">
-              Production-ready Next.js template with auth, billing, database, and deployment.
+            <p className="text-muted-foreground mb-8 max-w-xl text-base leading-relaxed sm:text-lg">
+              DealerFlow brings your stock, enquiries, test drives and contracts into one pipeline,
+              so every buyer gets a fast answer and no deal stalls in someone&apos;s inbox.
             </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {user ? (
+                <Button size="lg" className="w-full sm:w-auto" asChild>
+                  <Link href={dashboardUrl}>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Go to dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" className="w-full sm:w-auto" asChild>
+                  <Link href="/sign-up">
+                    Start free for 14 days
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link href="/sign-in">Book a live demo</Link>
+              </Button>
+            </div>
+
+            <p className="text-muted-foreground mt-4 text-sm">
+              No card required. Import your stock and contacts on day one.
+            </p>
+
+            <dl className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {heroStats.map((stat) => (
+                <div key={stat.label}>
+                  <dt className="text-2xl font-semibold sm:text-3xl">{stat.value}</dt>
+                  <dd className="text-muted-foreground mt-1 text-sm">{stat.label}</dd>
+                </div>
+              ))}
+            </dl>
           </motion.div>
 
-          {/* CTA Buttons */}
           <motion.div
-            className="flex flex-col items-center justify-center gap-3 px-2 sm:flex-row sm:gap-4"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
           >
-            {user ? (
-              // Logged-in user CTAs
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <Link href={dashboardUrl}>
-                  <Rocket className="mr-2 h-4 w-4" />
-                  Go to Dashboard
-                </Link>
-              </Button>
-            ) : (
-              // Logged-out user CTAs
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                  <Rocket className="mr-2 h-4 w-4" />
-                  git clone kosuke
-                </Link>
-              </Button>
-            )}
+            <Card className="bg-card">
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">Showroom pipeline</p>
+                    <p className="text-muted-foreground text-xs">Kingsway Motors · this week</p>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    Live
+                  </Badge>
+                </div>
 
-            <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-              <Link href="https://github.com/Kosuke-Org/kosuke-template#readme" target="_blank">
-                <Code2 className="mr-2 h-4 w-4" />
-                Documentation
-              </Link>
-            </Button>
+                <div className="space-y-4">
+                  {pipelineStages.map((item) => (
+                    <div key={item.stage} className="space-y-2">
+                      <div className="flex items-baseline justify-between text-sm">
+                        <span className="text-muted-foreground">{item.stage}</span>
+                        <span className="font-medium">{item.count}</span>
+                      </div>
+                      <Progress value={item.share} className="h-2" />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-border flex items-center gap-3 border-t pt-4">
+                  <Gauge className="text-muted-foreground h-4 w-4" />
+                  <p className="text-muted-foreground text-sm">
+                    Average days on lot <span className="text-foreground font-medium">24</span>,
+                    down from 39
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </section>
 
-      {/* Core Features */}
-      <section className="bg-background py-12 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto max-w-6xl">
           <motion.div
-            className="mb-12 text-center sm:mb-16"
+            className="mb-12 max-w-2xl sm:mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # Everything you need
+            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+              Everything the forecourt runs on, in one place
             </h2>
-            <p className="text-muted-foreground mx-auto max-w-2xl px-2 font-sans text-base sm:text-lg">
-              Carefully chosen technologies that work together seamlessly
+            <p className="text-muted-foreground text-base sm:text-lg">
+              Purpose-built for used and new car retail, not a generic sales tool bent into shape.
             </p>
           </motion.div>
 
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-            {coreFeatures.map((feature, index) => (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
               >
-                <Card className="h-full py-4 transition-colors">
-                  <CardContent className="py-0">
-                    <div className="mb-3 flex items-start justify-between sm:mb-4">
-                      <div className="bg-muted text-muted-foreground rounded-lg p-2">
-                        <feature.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {feature.metrics}
-                      </Badge>
-                    </div>
-
-                    <h3 className="mb-2 text-lg font-semibold sm:mb-3 sm:text-xl">
-                      {feature.title}
-                    </h3>
-
-                    <p className="text-muted-foreground font-sans text-sm leading-relaxed sm:text-base">
+                <Card className="h-full">
+                  <CardContent className="space-y-3">
+                    <feature.icon className="text-muted-foreground h-5 w-5" />
+                    <h3 className="text-lg font-semibold">{feature.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {feature.description}
                     </p>
                   </CardContent>
@@ -185,182 +289,86 @@ export function Home() {
         </div>
       </section>
 
-      {/* Tech Stack - Minimal Grid */}
-      <section className="py-24 sm:py-48">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="mb-12 text-center sm:mb-16"
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto max-w-6xl">
+          <motion.h2
+            className="mb-12 max-w-2xl text-3xl font-bold tracking-tight sm:mb-16 sm:text-4xl"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # built with
-            </h2>
-          </motion.div>
+            From first click to signed contract
+          </motion.h2>
 
-          <motion.div
-            className="mx-auto grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-8 md:grid-cols-7"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {technologies.map((tech, index) => (
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
+            {workflow.map((item, index) => (
               <motion.div
-                key={index}
-                className="group flex cursor-pointer flex-col items-center"
-                whileHover={{ y: -2 }}
-                transition={{ type: 'spring', stiffness: 300 }}
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="bg-card/30 border-border/30 rounded-lg border p-2 transition-all duration-300 sm:p-3">
-                  <TechLogo name={tech.name} logoPath={tech.logoPath} url={tech.url} size="md" />
-                </div>
-                <span className="text-muted-foreground group-hover:text-foreground mt-2 text-center text-xs transition-colors">
-                  {tech.name.toLowerCase()}
-                </span>
+                <p className="text-muted-foreground mb-3 text-sm font-medium">{item.step}</p>
+                <h3 className="mb-3 text-xl font-semibold">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Bento Grid Features */}
-      <section className="bg-background py-12 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="mb-12 text-center sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # Why developers choose this
-            </h2>
-            <p className="text-muted-foreground mx-auto max-w-2xl px-2 font-sans text-base sm:text-lg">
-              Every component designed for speed, security, and scale
-            </p>
-          </motion.div>
-
-          <div className="mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {/* Large feature card */}
-              <motion.div
-                className="lg:col-span-2 lg:row-span-2"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <Card className="bg-card border-border hover:bg-card/80 h-full border p-6 transition-all duration-300 sm:p-8">
-                  <CardContent className="flex h-full flex-col justify-between p-0">
-                    <div>
-                      <div className="mb-4 flex items-center gap-3 sm:mb-6">
-                        <div className="bg-muted rounded-lg p-2">
-                          <Rocket className="text-foreground h-5 w-5 sm:h-6 sm:w-6" />
-                        </div>
-                        <h3 className="text-lg font-semibold sm:text-xl">Ship in Minutes</h3>
-                      </div>
-                      <p className="text-muted-foreground mb-4 font-sans text-sm leading-relaxed sm:mb-6 sm:text-base">
-                        Complete full-stack application with authentication, database, billing, and
-                        deployment. Everything integrated and configured - just clone and ship.
-                      </p>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Clone to Deploy</span>
-                        <span className="text-foreground">&lt; 5 min</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Auth + DB + Billing</span>
-                        <span className="text-foreground">✓ Included</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Production Ready</span>
-                        <span className="text-foreground">Day 1</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Auth card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <Card className="bg-card/50 border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                      <Lock className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                      <h3 className="text-base font-semibold sm:text-lg">Secure Auth</h3>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Better Auth integration with passwordless authentication and organization
-                      management.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Database card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Card className="bg-card/50 border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                      <Database className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                      <h3 className="text-base font-semibold sm:text-lg">Type-Safe DB</h3>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Drizzle ORM with PostgreSQL. Migrations, relations, and full TypeScript
-                      support.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Billing card */}
-              <motion.div
-                className="md:col-span-2"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <Card className="bg-card border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center justify-between sm:mb-4">
-                      <div className="flex items-center gap-2">
-                        <Rocket className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                        <h3 className="text-base font-semibold sm:text-lg">Revenue Ready</h3>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        Stripe
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Complete subscription management with webhooks, usage tracking, and analytics.
-                      Start monetizing from day one.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="bg-background px-4 py-16 sm:px-6 sm:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={testimonial.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Card className="h-full">
+                <CardContent className="flex h-full flex-col justify-between gap-6">
+                  <p className="text-base leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
+                  <div>
+                    <p className="text-sm font-medium">{testimonial.name}</p>
+                    <p className="text-muted-foreground text-sm">{testimonial.role}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto grid max-w-5xl gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
+          <motion.h2
+            className="text-3xl font-bold tracking-tight sm:text-4xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Questions dealers ask us
+          </motion.h2>
+
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.question} value={faq.question}>
+                <AccordionTrigger className="text-left text-base">{faq.question}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:px-6 sm:py-28">
         <div className="container mx-auto max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -368,52 +376,32 @@ export function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl lg:text-5xl">
-              Ready to ship?
+            <h2 className="mb-5 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              Your next buyer is waiting on a reply
             </h2>
-
-            <p className="text-muted-foreground mb-8 px-2 font-sans text-base sm:mb-12 sm:text-lg">
-              Join developers building the next generation of web applications
+            <p className="text-muted-foreground mb-10 text-base sm:text-lg">
+              Set up your showroom, import your stock and answer the first lead today.
             </p>
 
-            <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
               {user ? (
-                // Logged-in user final CTA
-                <>
-                  <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href={dashboardUrl}>
-                      <Rocket className="mr-2 h-4 w-4" />
-                      Go to Dashboard
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                    <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                      <Star className="mr-2 h-4 w-4" />
-                      Star on GitHub
-                    </Link>
-                  </Button>
-                </>
+                <Button size="lg" className="w-full sm:w-auto" asChild>
+                  <Link href={dashboardUrl}>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Go to dashboard
+                  </Link>
+                </Button>
               ) : (
-                // Logged-out user final CTA
-                <>
-                  <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                      <Star className="mr-2 h-4 w-4" />
-                      Star on GitHub
-                    </Link>
-                  </Button>
-
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                    <Link
-                      href="https://github.com/Kosuke-Org/kosuke-template/blob/main/cli/README.md"
-                      target="_blank"
-                    >
-                      Setup Guide
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </>
+                <Button size="lg" className="w-full sm:w-auto" asChild>
+                  <Link href="/sign-up">
+                    Start free for 14 days
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               )}
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link href="/sign-in">Talk to sales</Link>
+              </Button>
             </div>
           </motion.div>
         </div>

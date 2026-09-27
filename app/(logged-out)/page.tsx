@@ -17,33 +17,30 @@ const HomepageStructuredData = () => {
   const websiteData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Kosuke Template',
+    name: 'DealerFlow',
     description:
-      'Production-ready Next.js template with auth, billing, database, and deployment. Skip the boilerplate and ship features fast.',
+      'DealerFlow is the CRM for car dealerships: one pipeline for leads, inventory, test drives and contracts.',
     url: baseUrl,
-    sameAs: ['https://github.com/Kosuke-Org/kosuke-template'],
   };
 
   const softwareData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Kosuke Template',
-    applicationCategory: 'DeveloperApplication',
+    name: 'DealerFlow',
+    applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web Browser',
     description:
-      'Production-ready Next.js template with authentication, billing, database, and deployment features built-in.',
+      'CRM for car dealerships and independent sellers, covering lead follow-up, vehicle inventory, test drive scheduling, deal desk and sales reporting.',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
+      description: '14-day free trial',
     },
     author: {
       '@type': 'Organization',
-      name: 'Kosuke Template',
+      name: 'DealerFlow',
     },
-    programmingLanguage: ['TypeScript', 'JavaScript', 'React'],
-    runtimePlatform: 'Node.js',
-    codeRepository: 'https://github.com/Kosuke-Org/kosuke-template',
   };
 
   return (
