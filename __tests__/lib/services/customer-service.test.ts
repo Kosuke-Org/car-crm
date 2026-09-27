@@ -159,6 +159,46 @@ describe('CustomerService', () => {
     });
   });
 
+  describe('getCustomerStats', () => {
+    it('should aggregate pipeline counts by status', async () => {
+      const mockSelect = vi.fn().mockReturnValueOnce({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            groupBy: vi.fn().mockResolvedValue([
+              { status: 'lead', count: 4 },
+              { status: 'active', count: 2 },
+            ]),
+          }),
+        }),
+      });
+
+      mockSelect.mockReturnValueOnce({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([{ count: 3 }]),
+        }),
+      });
+
+      mockSelect.mockReturnValueOnce({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([{ count: 1 }]),
+        }),
+      });
+
+      vi.mocked(db.select).mockImplementation(mockSelect);
+
+      const result = await customerService.getCustomerStats({
+        organizationId: mockOrganizationId,
+      });
+
+      expect(result).toEqual({
+        total: 6,
+        byStatus: { lead: 4, prospect: 0, active: 2, inactive: 0 },
+        newThisMonth: 3,
+        contactedLastWeek: 1,
+      });
+    });
+  });
+
   describe('getCustomerById', () => {
     it('should return the customer with sales rep details', async () => {
       const mockSelect = vi.fn().mockReturnValue({

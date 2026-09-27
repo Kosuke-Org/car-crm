@@ -49,6 +49,10 @@ export const customerListFiltersSchema = z
   })
   .optional();
 
+export const customerStatsSchema = z.object({
+  organizationId: z.uuid(),
+});
+
 export const getCustomerSchema = z.object({
   id: z.uuid(),
   organizationId: z.uuid(),

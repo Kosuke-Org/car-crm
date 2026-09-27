@@ -2,7 +2,7 @@
  * Customer Service
  * Handles all customer-related business logic and database operations
  */
-import { and, asc, count, desc, eq, ilike, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, or } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
 
 import { db } from '@/lib/db/drizzle';
@@ -100,6 +100,55 @@ export async function listCustomers(params: {
     page,
     limit,
     totalPages,
+  };
+}
+
+/**
+ * Aggregate dealership pipeline metrics for an organization
+ */
+export async function getCustomerStats(params: { organizationId: Customer['organizationId'] }) {
+  const { organizationId } = params;
+
+  const statusCounts = await db
+    .select({ status: customers.status, count: count() })
+    .from(customers)
+    .where(eq(customers.organizationId, organizationId))
+    .groupBy(customers.status);
+
+  const byStatus = statusCounts.reduce<Record<CustomerStatus, number>>(
+    (acc, row) => ({ ...acc, [row.status]: row.count }),
+    { lead: 0, prospect: 0, active: 0, inactive: 0 }
+  );
+
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const [newThisMonthResult] = await db
+    .select({ count: count() })
+    .from(customers)
+    .where(
+      and(eq(customers.organizationId, organizationId), gte(customers.createdAt, startOfMonth))
+    );
+
+  const [contactedLastWeekResult] = await db
+    .select({ count: count() })
+    .from(customers)
+    .where(
+      and(
+        eq(customers.organizationId, organizationId),
+        gte(customers.lastContactedAt, sevenDaysAgo)
+      )
+    );
+
+  return {
+    total: Object.values(byStatus).reduce((sum, value) => sum + value, 0),
+    byStatus,
+    newThisMonth: newThisMonthResult?.count ?? 0,
+    contactedLastWeek: contactedLastWeekResult?.count ?? 0,
   };
 }
 

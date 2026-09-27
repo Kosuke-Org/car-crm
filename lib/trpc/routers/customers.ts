@@ -9,6 +9,7 @@ import { orgProcedure, router } from '../init';
 import {
   createCustomerSchema,
   customerListFiltersSchema,
+  customerStatsSchema,
   deleteCustomerSchema,
   exportCustomersSchema,
   getCustomerSchema,
@@ -29,6 +30,19 @@ export const customersRouter = router({
         limit: input?.limit,
         sortBy: input?.sortBy,
         sortOrder: input?.sortOrder,
+      });
+    } catch (error) {
+      handleApiError(error);
+    }
+  }),
+
+  /**
+   * Pipeline metrics for the organization dashboard
+   */
+  stats: orgProcedure.input(customerStatsSchema).query(async ({ ctx }) => {
+    try {
+      return await customerService.getCustomerStats({
+        organizationId: ctx.organizationId,
       });
     } catch (error) {
       handleApiError(error);

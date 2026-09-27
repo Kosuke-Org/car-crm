@@ -22,6 +22,7 @@ const knipConfig = {
     '@radix-ui/*',
     'embla-carousel-react',
     'react-resizable-panels',
+    'recharts',
     'tailwindcss',
     'tailwindcss-animate',
     'vaul',

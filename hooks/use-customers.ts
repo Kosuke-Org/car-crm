@@ -46,6 +46,21 @@ export function useCustomersList(filters: CustomerListFilters) {
 }
 
 /**
+ * Hook for dealership pipeline metrics
+ */
+export function useCustomerStats(organizationId: string | undefined) {
+  const { data: stats, isLoading } = trpc.customers.stats.useQuery(
+    { organizationId: organizationId ?? '' },
+    {
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      enabled: !!organizationId,
+    }
+  );
+
+  return { stats, isLoading };
+}
+
+/**
  * Hook for customer mutations (create, update, delete, export)
  */
 export function useCustomerActions() {
