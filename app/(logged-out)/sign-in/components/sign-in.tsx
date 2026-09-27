@@ -13,6 +13,7 @@ import { signInSchema } from '@/lib/trpc/schemas/auth';
 
 import { useAuthActions } from '@/hooks/use-auth';
 
+import { LogoMark } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
@@ -47,7 +48,8 @@ export const SignIn = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign in to DealerFlow</CardTitle>
+        <LogoMark className="mb-3 h-8 w-8" />
+        <CardTitle>Sign in to AutoYard</CardTitle>
         <CardDescription>Welcome back! Please sign in to continue</CardDescription>
       </CardHeader>
       <CardContent>

@@ -17,20 +17,20 @@ const HomepageStructuredData = () => {
   const websiteData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'DealerFlow',
+    name: 'AutoYard',
     description:
-      'DealerFlow is the CRM for car dealerships: one pipeline for leads, inventory, test drives and contracts.',
+      'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
     url: baseUrl,
   };
 
   const softwareData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'DealerFlow',
+    name: 'AutoYard',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web Browser',
     description:
-      'CRM for car dealerships and independent sellers, covering lead follow-up, vehicle inventory, test drive scheduling, deal desk and sales reporting.',
+      'CRM for car retail, covering enquiry follow-up, vehicle stock, test drive booking, part-ex and order paperwork, and per-rooftop reporting.',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -39,7 +39,8 @@ const HomepageStructuredData = () => {
     },
     author: {
       '@type': 'Organization',
-      name: 'DealerFlow',
+      name: 'AutoYard',
+      logo: `${baseUrl}/logos/autoyard-logo.svg`,
     },
   };
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Car, CreditCard, LogOut, Menu, Settings, Shield, User } from 'lucide-react';
+import { CreditCard, LogOut, Menu, Settings, Shield, User } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,7 @@ import { useOrganization } from '@/hooks/use-organization';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useUserAvatar } from '@/hooks/use-user-avatar';
 
+import { Logo } from '@/components/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -58,9 +59,8 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
       )}
     >
       <div className="container flex h-10 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <Car className="text-primary h-5 w-5" />
-          <span className="text-lg tracking-tight">DealerFlow</span>
+        <Link href="/" aria-label="AutoYard home">
+          <Logo />
         </Link>
 
         {/* Desktop navigation */}
@@ -147,7 +147,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Sidebar</SheetTitle>
-              <SheetDescription className="sr-only">DealerFlow navigation</SheetDescription>
+              <SheetDescription className="sr-only">AutoYard navigation</SheetDescription>
               <nav className="mt-10 flex flex-col gap-4 px-4">
                 {isSignedIn ? (
                   // Mobile navigation for logged-in users

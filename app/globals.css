@@ -1,5 +1,5 @@
 /* ============================================================================
- * KOSUKE TEMPLATE - GLOBAL STYLES
+ * AUTOYARD - GLOBAL STYLES
  * ============================================================================ */
 
 /* ----------------------------------------------------------------------------
@@ -30,6 +30,9 @@
   /* Primary Colors */
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
+  /* Brand accent - only legible on primary / dark surfaces */
+  --color-brand-accent: var(--brand-accent);
 
   /* Secondary Colors */
   --color-secondary: var(--secondary);
@@ -126,6 +129,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-brand-accent: var(--brand-accent);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -199,51 +203,52 @@
 
     /* Core Colors */
     --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+    --foreground: oklch(0.18 0.015 200);
 
     /* Surface Colors */
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: oklch(0.18 0.015 200);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.18 0.015 200);
 
-    /* Brand Colors */
-    --primary: oklch(0.55 0.22 264);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.96 0.03 264);
-    --secondary-foreground: oklch(0.35 0.14 264);
+    /* Brand Colors - AutoYard petrol green */
+    --primary: oklch(0.44 0.075 200);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.96 0.02 200);
+    --secondary-foreground: oklch(0.34 0.06 200);
+    --brand-accent: oklch(0.78 0.158 72);
 
     /* Neutral Colors */
-    --muted: oklch(0.97 0.01 264);
-    --muted-foreground: oklch(0.52 0.03 264);
-    --accent: oklch(0.95 0.05 264);
-    --accent-foreground: oklch(0.35 0.14 264);
+    --muted: oklch(0.97 0.012 200);
+    --muted-foreground: oklch(0.5 0.02 200);
+    --accent: oklch(0.95 0.035 195);
+    --accent-foreground: oklch(0.33 0.06 200);
 
     /* State Colors */
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.55 0.19 27);
+    --destructive-foreground: oklch(0.99 0 0);
 
     /* Interactive Elements */
-    --border: oklch(0.91 0.02 264);
-    --input: oklch(0.91 0.02 264);
-    --ring: oklch(0.55 0.22 264);
+    --border: oklch(0.9 0.015 200);
+    --input: oklch(0.9 0.015 200);
+    --ring: oklch(0.44 0.075 200);
 
     /* Data Visualization */
-    --chart-1: oklch(0.55 0.22 264);
-    --chart-2: oklch(0.52 0.12 195);
-    --chart-3: oklch(0.55 0.2 25);
-    --chart-4: oklch(0.58 0.14 85);
-    --chart-5: oklch(0.52 0.2 330);
+    --chart-1: oklch(0.44 0.075 200);
+    --chart-2: oklch(0.58 0.15 50);
+    --chart-3: oklch(0.52 0.12 155);
+    --chart-4: oklch(0.5 0.14 265);
+    --chart-5: oklch(0.55 0.17 25);
 
     /* Sidebar Component */
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: oklch(0.98 0.01 200);
+    --sidebar-foreground: oklch(0.18 0.015 200);
+    --sidebar-primary: oklch(0.44 0.075 200);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.95 0.025 200);
+    --sidebar-accent-foreground: oklch(0.33 0.06 200);
+    --sidebar-border: oklch(0.91 0.015 200);
+    --sidebar-ring: oklch(0.44 0.075 200);
   }
 
   /* ----------------------------------------------------------------------------
@@ -265,6 +270,7 @@
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
+    --brand-accent: oklch(0.78 0.158 72);
 
     /* Neutral Colors */
     --muted: oklch(0.269 0 0);

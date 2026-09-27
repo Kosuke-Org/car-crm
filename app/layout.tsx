@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 
@@ -18,16 +18,16 @@ const geistMono = Geist_Mono({
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://template.kosuke.ai';
 const ogImage = `${baseUrl}/opengraph-image.png`;
-const ogImageSquare = `${baseUrl}/og-image-square.png`;
+const ogImageSquare = `${baseUrl}/opengraph-image-square.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    template: '%s | DealerFlow',
-    default: 'DealerFlow',
+    template: '%s | AutoYard',
+    default: 'AutoYard - CRM for car dealerships',
   },
   description:
-    'DealerFlow is the CRM for car dealerships: one pipeline for leads, inventory, test drives and contracts, so no buyer waits for a reply.',
+    'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday. CRM for car retail, from one pitch to twenty rooftops.',
   keywords: [
     'car dealership CRM',
     'automotive CRM',
@@ -38,40 +38,40 @@ export const metadata: Metadata = {
     'test drive scheduling',
     'used car dealer software',
   ],
-  authors: [{ name: 'DealerFlow' }],
-  creator: 'DealerFlow',
-  publisher: 'DealerFlow',
+  authors: [{ name: 'AutoYard' }],
+  creator: 'AutoYard',
+  publisher: 'AutoYard',
   openGraph: {
-    title: 'DealerFlow - The CRM for car dealerships',
+    title: 'AutoYard - CRM for car dealerships',
     description:
-      'Sell more cars and chase fewer leads. Leads, inventory, test drives and contracts in one pipeline built for car retail.',
+      'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     type: 'website',
     images: [
       {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'DealerFlow - The CRM for car dealerships',
+        alt: 'AutoYard - CRM for car dealerships',
       },
       {
         url: ogImageSquare,
         width: 500,
         height: 500,
-        alt: 'DealerFlow - The CRM for car dealerships',
+        alt: 'AutoYard - CRM for car dealerships',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DealerFlow - The CRM for car dealerships',
+    title: 'AutoYard - CRM for car dealerships',
     description:
-      'Sell more cars and chase fewer leads. Leads, inventory, test drives and contracts in one pipeline built for car retail.',
+      'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     images: [
       {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'DealerFlow - The CRM for car dealerships',
+        alt: 'AutoYard - CRM for car dealerships',
       },
     ],
   },
@@ -97,12 +97,17 @@ export const metadata: Metadata = {
       url: '/apple-touch-icon.png',
     },
   ],
+  manifest: '/manifest.webmanifest',
   verification: {
     // Add when you have these set up:
     // google: 'your-google-verification-code',
     // yandex: 'your-yandex-verification-code',
     // bing: 'your-bing-verification-code',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#005f63',
 };
 
 export default function RootLayout({

@@ -3,17 +3,7 @@
 import Link from 'next/link';
 
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  BarChart3,
-  CalendarClock,
-  Car,
-  FileSignature,
-  Gauge,
-  MessagesSquare,
-  Rocket,
-  Users,
-} from 'lucide-react';
+import { ArrowRight, Rocket } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -26,154 +16,92 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 
-const heroStats = [
-  { value: '31%', label: 'more test drives booked', color: 'text-chart-1' },
-  { value: '4 min', label: 'average lead response time', color: 'text-chart-2' },
-  { value: '1,200+', label: 'dealerships selling with us', color: 'text-chart-5' },
-];
-
-const pipelineStages = [
+const todaysLeads = [
   {
-    stage: 'New leads',
-    count: 42,
-    share: 100,
-    color: '[&>[data-slot=progress-indicator]]:bg-chart-1',
+    name: 'Aisha R.',
+    vehicle: '2019 Golf GTI · 42k',
+    meta: 'Autotrader · 6 min ago',
+    status: 'Needs a reply',
+    tone: 'bg-chart-2/15 text-chart-2',
   },
   {
-    stage: 'Contacted',
-    count: 28,
-    share: 68,
-    color: '[&>[data-slot=progress-indicator]]:bg-chart-2',
+    name: 'Tom B.',
+    vehicle: '2021 Kuga ST-Line',
+    meta: 'Website form · yesterday',
+    status: 'Test drive Sat 10:30',
+    tone: 'bg-chart-1/10 text-chart-1',
   },
   {
-    stage: 'Test drive booked',
-    count: 17,
-    share: 41,
-    color: '[&>[data-slot=progress-indicator]]:bg-chart-5',
+    name: 'Rehan M.',
+    vehicle: '2020 A3 Sportback',
+    meta: 'Part-ex quote sent',
+    status: 'Waiting on buyer',
+    tone: 'bg-muted text-muted-foreground',
   },
   {
-    stage: 'Financing sent',
-    count: 9,
-    share: 22,
-    color: '[&>[data-slot=progress-indicator]]:bg-chart-4',
-  },
-  {
-    stage: 'Sold this week',
-    count: 6,
-    share: 14,
-    color: '[&>[data-slot=progress-indicator]]:bg-chart-3',
+    name: 'Lauren D.',
+    vehicle: '2018 Civic 1.0 VTEC',
+    meta: 'Finance approved',
+    status: 'Handover Thu',
+    tone: 'bg-chart-3/15 text-chart-3',
   },
 ];
 
-const features = [
-  {
-    icon: MessagesSquare,
-    color: 'bg-chart-1/15 text-chart-1',
-    title: 'One inbox for every lead',
-    description:
-      'Autotrader, your website, WhatsApp, phone and walk-ins land in a single queue with automated follow-ups that never let a buyer go cold.',
-  },
-  {
-    icon: Car,
-    color: 'bg-chart-2/15 text-chart-2',
-    title: 'Inventory that sells itself',
-    description:
-      'VIN decoding, photo sets, reconditioning status and days-on-lot, synced to every listing portal the moment a price changes.',
-  },
-  {
-    icon: CalendarClock,
-    color: 'bg-chart-5/15 text-chart-5',
-    title: 'Test drives on autopilot',
-    description:
-      'Buyers pick a slot from your live calendar, get reminders by SMS, and your salespeople walk in with the car already prepped.',
-  },
-  {
-    icon: FileSignature,
-    color: 'bg-chart-3/15 text-chart-3',
-    title: 'Deal desk and e-signature',
-    description:
-      'Build the quote, add trade-in valuation and finance options, then send the contract for signature without leaving the deal.',
-  },
-  {
-    icon: BarChart3,
-    color: 'bg-chart-4/20 text-chart-4',
-    title: 'Numbers your GM trusts',
-    description:
-      'Gross per unit, source ROI, aging stock and salesperson performance, refreshed live instead of stitched together in a spreadsheet.',
-  },
-  {
-    icon: Users,
-    color: 'bg-primary/10 text-primary',
-    title: 'Built for multi-rooftop groups',
-    description:
-      'Share stock across locations, route leads to the nearest showroom and keep permissions tight for every team and brand.',
-  },
+const replaced = [
+  'The sales@ inbox three people half-watch',
+  'The stock spreadsheet that is always one price behind',
+  'The whiteboard of this weekend’s test drives',
+  'Four WhatsApp threads per deal',
+  'The Monday report somebody rebuilds by hand',
 ];
 
-const workflow = [
+const capabilities = [
   {
-    step: '01',
-    color: 'bg-chart-1 text-primary-foreground',
-    title: 'Capture',
-    description:
-      'Every enquiry is de-duplicated, enriched with the vehicle they viewed and assigned to a salesperson in seconds.',
+    title: 'One queue for every enquiry',
+    body: 'Portals, your own website forms, WhatsApp, missed calls and walk-ins land in the same list, de-duplicated and stamped with the car the buyer was actually looking at. Response clocks start the second it arrives, so nothing quietly ages over a weekend.',
+    wide: true,
   },
   {
-    step: '02',
-    color: 'bg-chart-2 text-primary-foreground',
-    title: 'Convert',
-    description:
-      'Guided follow-up sequences, saved replies and test-drive booking links turn browsers into showroom appointments.',
+    title: 'Stock that stays honest',
+    body: 'VIN decode, recon status, photo sets and days on lot. Change a price once and the portals follow.',
   },
   {
-    step: '03',
-    color: 'bg-chart-5 text-primary-foreground',
-    title: 'Close',
-    description:
-      'Quote, trade-in, finance and contract live on one deal record, so handover is paperwork-free and the margin is visible.',
-  },
-];
-
-const testimonials = [
-  {
-    quote:
-      'We were losing weekend leads in a shared mailbox. Within a month our response time went from nine hours to four minutes and September was our best month ever.',
-    name: 'Marta Ferrante',
-    role: 'General Manager, Ferrante Auto Group',
+    title: 'Test drives in the diary',
+    body: 'Buyers pick a slot themselves. The car is prepped, fuelled and out front when they turn up.',
   },
   {
-    quote:
-      'Four rooftops, one stock list, one pipeline. I can finally see which channel actually pays for itself before I renew the spend.',
-    name: 'Daniel Okafor',
-    role: 'Owner, Northline Motors',
+    title: 'Part-ex and paperwork on one record',
+    body: 'Valuation, finance quote and order form sit with the deal, signed from a phone in the showroom.',
+  },
+  {
+    title: 'Numbers per rooftop',
+    body: 'Gross per unit, source ROI and aged stock, by site and by salesperson, without exporting anything.',
   },
 ];
 
 const faqs = [
   {
-    question: 'How long does it take to get running?',
+    question: 'Does it replace our DMS?',
     answer:
-      'Most dealerships are live in under a week. We import your stock, contacts and open deals, connect your listing portals and train the team in two short sessions.',
+      'No. AutoYard handles everything up to the signature — enquiries, stock presentation, appointments, part-ex and the order form. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
   },
   {
-    question: 'Will it work with the portals we already advertise on?',
+    question: 'How long until we are actually using it?',
     answer:
-      'Yes. Listings and leads sync both ways with the major marketplaces, plus your own website forms, so pricing and availability stay identical everywhere.',
+      'A single site is usually running the same week: we import stock and open enquiries, connect your portals and spend two short sessions with the sales team. Groups take longer, mostly because of portal credentials.',
   },
   {
-    question: 'Can independent sellers use it, or is it only for big groups?',
+    question: 'We advertise on several portals. Does that still work?',
     answer:
-      'Both. A single-site dealer with two salespeople gets the same pipeline, inventory and follow-up automation as a group running a dozen rooftops.',
+      'Yes. Listings go out and leads come back on the major marketplaces, plus your own site. Price and availability change in one place.',
   },
   {
-    question: 'What about our existing finance and DMS providers?',
+    question: 'Is it worth it for two salespeople?',
     answer:
-      'Deals export to your DMS and finance partners, so the desk keeps its current approval flow while the customer-facing work happens here.',
+      'That is most of our customers. Small pitches feel the response-time difference first, because there is nobody spare to chase a mailbox on a Saturday.',
   },
 ];
 
@@ -183,103 +111,96 @@ export function Home() {
 
   const dashboardUrl = organization ? `/org/${organization.slug}/dashboard` : '/';
 
+  const primaryCta = user ? (
+    <Button size="lg" className="w-full sm:w-auto" asChild>
+      <Link href={dashboardUrl}>
+        <Rocket className="mr-2 h-4 w-4" />
+        Go to dashboard
+      </Link>
+    </Button>
+  ) : (
+    <Button size="lg" className="w-full sm:w-auto" asChild>
+      <Link href="/sign-up">
+        Start a 14-day trial
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Link>
+    </Button>
+  );
+
   return (
     <div className="bg-background min-h-screen w-full pt-[60px]">
-      <section className="from-primary/10 via-chart-2/5 bg-gradient-to-br to-transparent px-4 pt-14 pb-16 sm:px-6 sm:pt-24 sm:pb-24">
-        <div className="container mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+      <section className="from-accent/60 bg-gradient-to-b to-transparent px-4 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20">
+        <div className="container mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-20">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <Badge className="bg-primary/10 text-primary hover:bg-primary/10 mb-6 px-3 py-1 text-xs">
-              The CRM for people who sell cars
-            </Badge>
-
-            <h1 className="mb-6 text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              Sell more cars.
-              <br />
-              <span className="text-primary">Chase fewer leads.</span>
-            </h1>
-
-            <p className="text-muted-foreground mb-8 max-w-xl text-base leading-relaxed sm:text-lg">
-              DealerFlow brings your stock, enquiries, test drives and contracts into one pipeline,
-              so every buyer gets a fast answer and no deal stalls in someone&apos;s inbox.
+            <p className="text-primary mb-5 text-sm font-medium tracking-wide">
+              CRM for car retail — one pitch or twenty rooftops
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {user ? (
-                <Button size="lg" className="w-full sm:w-auto" asChild>
-                  <Link href={dashboardUrl}>
-                    <Rocket className="mr-2 h-4 w-4" />
-                    Go to dashboard
-                  </Link>
-                </Button>
-              ) : (
-                <Button size="lg" className="w-full sm:w-auto" asChild>
-                  <Link href="/sign-up">
-                    Start free for 14 days
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              )}
+            <h1 className="max-w-xl text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
+              Every enquiry answered before it goes cold
+            </h1>
+
+            <p className="text-muted-foreground mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
+              AutoYard keeps leads, stock, test drives and part-ex on one list your whole floor
+              works from. No buyer waits until Monday because their email landed in a mailbox nobody
+              owns.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              {primaryCta}
               <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                <Link href="/sign-in">Book a live demo</Link>
+                <Link href="/sign-in">See it on your own stock</Link>
               </Button>
             </div>
 
-            <p className="text-muted-foreground mt-4 text-sm">
-              No card required. Import your stock and contacts on day one.
+            <p className="text-muted-foreground mt-4 max-w-md text-sm leading-relaxed">
+              Import from your DMS or a CSV on day one. No card, and no setup call unless you want
+              one.
             </p>
-
-            <dl className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-              {heroStats.map((stat) => (
-                <div key={stat.label}>
-                  <dt className={cn('text-2xl font-semibold sm:text-3xl', stat.color)}>
-                    {stat.value}
-                  </dt>
-                  <dd className="text-muted-foreground mt-1 text-sm">{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Card className="bg-card">
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">Showroom pipeline</p>
-                    <p className="text-muted-foreground text-xs">Kingsway Motors · this week</p>
-                  </div>
-                  <Badge className="bg-chart-2/15 text-chart-2 hover:bg-chart-2/15 text-xs">
-                    Live
-                  </Badge>
+            <Card>
+              <CardContent className="space-y-5">
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-medium">Today · Kingsway Motors</p>
+                  <p className="text-muted-foreground text-xs">4 waiting · longest 11 min</p>
                 </div>
 
-                <div className="space-y-4">
-                  {pipelineStages.map((item) => (
-                    <div key={item.stage} className="space-y-2">
-                      <div className="flex items-baseline justify-between text-sm">
-                        <span className="text-muted-foreground">{item.stage}</span>
-                        <span className="font-medium">{item.count}</span>
+                <ul className="space-y-4">
+                  {todaysLeads.map((lead) => (
+                    <li key={lead.name} className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {lead.name} <span className="text-muted-foreground">·</span>{' '}
+                          {lead.vehicle}
+                        </p>
+                        <p className="text-muted-foreground mt-0.5 text-xs">{lead.meta}</p>
                       </div>
-                      <Progress value={item.share} className={cn('bg-muted h-2', item.color)} />
-                    </div>
+                      <span
+                        className={cn(
+                          'shrink-0 rounded-md px-2 py-1 text-xs font-medium',
+                          lead.tone
+                        )}
+                      >
+                        {lead.status}
+                      </span>
+                    </li>
                   ))}
-                </div>
+                </ul>
 
-                <div className="border-border flex items-center gap-3 border-t pt-4">
-                  <Gauge className="text-chart-1 h-4 w-4" />
-                  <p className="text-muted-foreground text-sm">
-                    Average days on lot <span className="text-foreground font-medium">24</span>,
-                    down from 39
-                  </p>
-                </div>
+                <p className="text-muted-foreground border-t pt-4 text-sm">
+                  Average days on lot <span className="text-foreground font-medium">24</span>, down
+                  from 39 since March.
+                </p>
               </CardContent>
             </Card>
           </motion.div>
@@ -287,125 +208,73 @@ export function Home() {
       </section>
 
       <section className="px-4 py-16 sm:px-6 sm:py-24">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div
-            className="mb-12 max-w-2xl sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything the forecourt runs on, in one place
+        <div className="container mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1fr] md:gap-20">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              One list instead of five tabs
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg">
-              Purpose-built for used and new car retail, not a generic sales tool bent into shape.
+            <p className="text-muted-foreground mt-5 text-base leading-relaxed">
+              Most forecourts do not lose deals on price. They lose them in the gap between an
+              enquiry arriving and somebody picking it up. AutoYard closes that gap by keeping the
+              whole sale — first message to signed order — in one place.
             </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-              >
-                <Card className="h-full">
-                  <CardContent className="space-y-3">
-                    <div
-                      className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-lg',
-                        feature.color
-                      )}
-                    >
-                      <feature.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-lg font-semibold">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
           </div>
+
+          <ul className="space-y-3 self-center">
+            {replaced.map((item) => (
+              <li key={item} className="text-muted-foreground flex gap-3 text-base">
+                <span aria-hidden className="bg-chart-2 mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       <section className="bg-accent/40 px-4 py-16 sm:px-6 sm:py-24">
         <div className="container mx-auto max-w-6xl">
-          <motion.h2
-            className="mb-12 max-w-2xl text-3xl font-bold tracking-tight sm:mb-16 sm:text-4xl"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            From first click to signed contract
-          </motion.h2>
-
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12">
-            {workflow.map((item, index) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div
+          <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
+            {capabilities.map((item) => (
+              <div key={item.title} className={cn(item.wide && 'md:col-span-2 md:max-w-3xl')}>
+                <h3
                   className={cn(
-                    'mb-4 flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold',
-                    item.color
+                    'font-semibold tracking-tight',
+                    item.wide ? 'text-2xl sm:text-3xl' : 'text-lg'
                   )}
                 >
-                  {item.step}
-                </div>
-                <h3 className="mb-3 text-xl font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
-              </motion.div>
+                  {item.title}
+                </h3>
+                <p
+                  className={cn(
+                    'text-muted-foreground mt-3 leading-relaxed',
+                    item.wide ? 'text-base sm:text-lg' : 'text-sm'
+                  )}
+                >
+                  {item.body}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       <section className="px-4 py-16 sm:px-6 sm:py-24">
-        <div className="container mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Card className="h-full">
-                <CardContent className="flex h-full flex-col justify-between gap-6">
-                  <p className="text-base leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
-                  <div>
-                    <p className="text-sm font-medium">{testimonial.name}</p>
-                    <p className="text-muted-foreground text-sm">{testimonial.role}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        <figure className="container mx-auto max-w-3xl">
+          <blockquote className="text-xl leading-relaxed font-medium text-balance sm:text-2xl">
+            “Weekend enquiries used to sit nine hours before anyone replied. They are minutes now.
+            The part I did not expect: we stopped arguing about who owned which lead.”
+          </blockquote>
+          <figcaption className="text-muted-foreground mt-6 text-sm">
+            Marta Ferrante — general manager, Ferrante Auto Group, four sites near Milan
+          </figcaption>
+        </figure>
       </section>
 
-      <section className="px-4 py-16 sm:px-6 sm:py-24">
+      <section className="px-4 pb-16 sm:px-6 sm:pb-24">
         <div className="container mx-auto grid max-w-5xl gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
-          <motion.h2
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Questions dealers ask us
-          </motion.h2>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            What dealers ask before signing
+          </h2>
 
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq) => (
@@ -420,42 +289,46 @@ export function Home() {
         </div>
       </section>
 
-      <section className="from-primary/10 via-chart-5/5 bg-gradient-to-tr to-transparent px-4 py-16 sm:px-6 sm:py-28">
-        <div className="container mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-5 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              Your next buyer is waiting on a reply
+      <section className="px-4 pb-16 sm:px-6 sm:pb-24">
+        <div className="bg-primary text-primary-foreground container mx-auto max-w-6xl rounded-lg px-6 py-14 sm:px-14 sm:py-20">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              There is an enquiry waiting right now
             </h2>
-            <p className="text-muted-foreground mb-10 text-base sm:text-lg">
-              Set up your showroom, import your stock and answer the first lead today.
+            <p className="text-primary-foreground/80 mt-4 text-base sm:text-lg">
+              Set up your site, import your stock and answer it from AutoYard today.
             </p>
 
-            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {user ? (
-                <Button size="lg" className="w-full sm:w-auto" asChild>
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
                   <Link href={dashboardUrl}>
                     <Rocket className="mr-2 h-4 w-4" />
                     Go to dashboard
                   </Link>
                 </Button>
               ) : (
-                <Button size="lg" className="w-full sm:w-auto" asChild>
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
                   <Link href="/sign-up">
-                    Start free for 14 days
+                    Start a 14-day trial
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               )}
-              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                <Link href="/sign-in">Talk to sales</Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground w-full bg-transparent sm:w-auto"
+                asChild
+              >
+                <Link href="/sign-in">Talk to someone who sold cars</Link>
               </Button>
             </div>
-          </motion.div>
+
+            <p className="text-brand-accent mt-6 text-sm">
+              Not a DMS. Not accounting. Just the part where you sell the car.
+            </p>
+          </div>
         </div>
       </section>
     </div>

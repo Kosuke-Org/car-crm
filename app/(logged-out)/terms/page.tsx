@@ -23,7 +23,7 @@ export default function TermsPage() {
             </CardHeader>
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
-                By accessing and using DealerFlow, you accept and agree to be bound by the terms and
+                By accessing and using AutoYard, you accept and agree to be bound by the terms and
                 provision of this agreement. If you do not agree to abide by the above, please do
                 not use this service.
               </p>
@@ -36,7 +36,7 @@ export default function TermsPage() {
             </CardHeader>
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
-                Permission is granted to temporarily download one copy of DealerFlow per device for
+                Permission is granted to temporarily download one copy of AutoYard per device for
                 personal, non-commercial transitory viewing only. This is the grant of a license,
                 not a transfer of title, and under this license you may not:
               </p>
@@ -124,7 +124,7 @@ export default function TermsPage() {
             </CardHeader>
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
-                In no case shall DealerFlow, nor its directors, employees, partners, agents,
+                In no case shall AutoYard, nor its directors, employees, partners, agents,
                 suppliers, or affiliates, be liable for any indirect, incidental, punitive, special,
                 or consequential damages arising out of or in connection with your use of the
                 service.
@@ -139,8 +139,8 @@ export default function TermsPage() {
             <CardContent className="prose prose-neutral dark:prose-invert max-w-none">
               <p>
                 If you have any questions about these Terms of Service, please contact us at{' '}
-                <a href="mailto:legal@dealerflow.com" className="text-primary hover:underline">
-                  legal@dealerflow.com
+                <a href="mailto:legal@autoyard.com" className="text-primary hover:underline">
+                  legal@autoyard.com
                 </a>
               </p>
             </CardContent>
