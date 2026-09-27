@@ -1,16 +1,13 @@
 'use client';
 
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
 import Link from 'next/link';
 
-import { CreditCard, LogOut, Menu, Settings, Shield, User } from 'lucide-react';
+import { Car, CreditCard, LogOut, Menu, Settings, Shield, User } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 import { useAuth } from '@/hooks/use-auth';
 import { useAuthActions } from '@/hooks/use-auth';
-import { useClient } from '@/hooks/use-client';
 import { useOrganization } from '@/hooks/use-organization';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useUserAvatar } from '@/hooks/use-user-avatar';
@@ -27,7 +24,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 interface NavbarProps {
   variant?: 'standard' | 'transparent';
@@ -39,14 +42,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
   const { profileImageUrl, initials, displayName, primaryEmail } = useUserAvatar();
   const { signOut: handleSignOut } = useAuthActions();
   const { isAdmin } = usePermissions();
-  const { theme } = useTheme();
-  const { isClient } = useClient();
   const { organization: activeOrganization } = useOrganization();
-  const logoUrl = isClient
-    ? theme === 'dark'
-      ? '/logos/logo-dark.svg'
-      : '/logos/logo.svg'
-    : '/logos/logo-dark.svg';
 
   const dashboardUrl = activeOrganization ? `/org/${activeOrganization.slug}/dashboard` : '/';
   const settingsUrl = '/settings';
@@ -63,7 +59,8 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
     >
       <div className="container flex h-10 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <Image src={logoUrl} alt="DealerFlow" width={160} height={28} />
+          <Car className="text-primary h-5 w-5" />
+          <span className="text-lg tracking-tight">DealerFlow</span>
         </Link>
 
         {/* Desktop navigation */}
@@ -152,6 +149,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Sidebar</SheetTitle>
+              <SheetDescription className="sr-only">DealerFlow navigation</SheetDescription>
               <nav className="mt-10 flex flex-col gap-4 px-4">
                 {isSignedIn ? (
                   // Mobile navigation for logged-in users

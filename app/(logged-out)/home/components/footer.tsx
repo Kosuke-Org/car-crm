@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 
-import { Github } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 
 import { AppVersion } from '@/components/app-version';
@@ -23,15 +21,6 @@ export default function Footer({ className }: FooterProps) {
           <AppVersion className="text-muted-foreground/60 text-xs" />
         </div>
         <div className="flex items-center gap-4">
-          <Link
-            href="https://github.com/filopedraz/kosuke-core"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Github className="h-5 w-5" />
-            <span className="sr-only">GitHub</span>
-          </Link>
           <Link
             href="/privacy"
             className="text-muted-foreground hover:text-foreground text-sm transition-colors"
