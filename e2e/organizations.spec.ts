@@ -26,7 +26,7 @@ test('creating an organization switches to it and lists it in the org switcher',
   // The app redirects into the freshly created organization.
   await expect(dialog).toBeHidden();
   await expect(page).toHaveURL(/\/org\/e2e-workspace-[^/]+\/dashboard/);
-  await expect(page.getByRole('heading', { name: 'Component Showcase' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dealership overview' })).toBeVisible();
 
   // The new workspace is the active one in the switcher...
   await expect(orgSwitcher(page)).toContainText(orgName);
