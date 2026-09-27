@@ -25,6 +25,8 @@ const knipConfig = {
     'tailwindcss',
     'tailwindcss-animate',
     'vaul',
+    // Drag-and-drop toolkit kept available for template users
+    '@dnd-kit/*',
     // They are used but not imported in the codebase
     'drizzle-zod',
     '@trpc/next',

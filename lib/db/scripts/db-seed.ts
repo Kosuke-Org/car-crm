@@ -3,7 +3,7 @@
  * Database Seed Script
  *
  * This script populates the database with dummy data for development and testing.
- * It creates users, organizations, memberships, subscriptions, tasks, and activity logs.
+ * It creates users, organizations, memberships, subscriptions, customers, and activity logs.
  *
  * ⚠️ WARNING: This script should ONLY be run in development/test environments!
  *
@@ -18,28 +18,27 @@ import type Stripe from 'stripe';
 import { getStripe } from '@/lib/billing/client';
 import { withPrefix } from '@/lib/billing/lookup-keys';
 import { db } from '@/lib/db/drizzle';
-import type { NewOrder, OrderStatus } from '@/lib/types';
+import type { CustomerStatus, NewOrder, OrderStatus } from '@/lib/types';
 import { ORG_ROLES } from '@/lib/types/organization';
 
 import {
   ActivityType,
   type NewActivityLog,
+  type NewCustomer,
   type NewOrderHistory,
   type NewOrgMembership,
   type NewOrgSubscription,
   type NewOrganization,
-  type NewTask,
   type NewUser,
   SubscriptionStatus,
   SubscriptionTier,
-  type TaskPriority,
   activityLogs,
+  customers,
   orderHistory,
   orders,
   orgMemberships,
   orgSubscriptions,
   organizations,
-  tasks,
   users,
 } from '../schema';
 
@@ -333,61 +332,48 @@ async function seed() {
       console.log(`  ℹ️  ${org2Name}: No Stripe prices found - will use free tier by default`);
     }
 
-    // Step 7: Create tasks
-    console.log('📝 Creating tasks...');
+    // Step 7: Create customers
+    console.log('👤 Creating customers...');
 
-    const taskPriorities: TaskPriority[] = ['low', 'medium', 'high'];
+    const customerStatuses: CustomerStatus[] = ['lead', 'prospect', 'active', 'inactive'];
+    const vehicleModels = [
+      'Volkswagen Golf',
+      'Toyota Corolla',
+      'Tesla Model 3',
+      'BMW X3',
+      'Fiat 500',
+      'Audi A4',
+      'Renault Clio',
+      'Ford Kuga',
+    ];
 
-    // Personal tasks for Jane
-    const janePersonalTasks: NewTask[] = Array.from({ length: 5 }, (_, i) => ({
-      userId: janeUser.id,
-      title: faker.lorem.sentence({ min: 3, max: 6 }),
-      description: faker.lorem.paragraph(),
-      completed: i % 3 === 0 ? 'true' : 'false',
-      priority: taskPriorities[i % 3],
-      dueDate: faker.date.future(),
-    }));
+    const buildCustomers = (organizationId: string, ownerIds: string[], length: number) =>
+      Array.from({ length }, (_, i): NewCustomer => {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
 
-    // Organization tasks for org1
-    const org1Tasks: NewTask[] = Array.from({ length: 5 }, (_, i) => ({
-      userId: i % 2 === 0 ? janeUser.id : johnUser.id,
-      organizationId: insertedOrg1.id,
-      title: faker.lorem.sentence({ min: 3, max: 6 }),
-      description: faker.lorem.paragraph(),
-      completed: i % 4 === 0 ? 'true' : 'false',
-      priority: taskPriorities[i % 3],
-      dueDate: faker.date.future(),
-    }));
+        return {
+          organizationId,
+          userId: ownerIds[i % ownerIds.length],
+          firstName,
+          lastName,
+          email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+          phone: faker.phone.number(),
+          city: faker.location.city(),
+          status: customerStatuses[i % customerStatuses.length],
+          interestedInModel: vehicleModels[i % vehicleModels.length],
+          notes: faker.lorem.sentence(),
+          lastContactedAt: faker.date.recent({ days: 60 }),
+        };
+      });
 
-    // Personal tasks for John
-    const johnPersonalTasks: NewTask[] = Array.from({ length: 5 }, (_, i) => ({
-      userId: johnUser.id,
-      title: faker.lorem.sentence({ min: 3, max: 6 }),
-      description: faker.lorem.paragraph(),
-      completed: i % 2 === 0 ? 'true' : 'false',
-      priority: taskPriorities[i % 3],
-      dueDate: faker.date.future(),
-    }));
+    const org1Customers = buildCustomers(insertedOrg1.id, [janeUser.id, johnUser.id], 12);
+    const org2Customers = buildCustomers(insertedOrg2.id, [johnUser.id], 8);
 
-    // Organization tasks for org2
-    const org2Tasks: NewTask[] = Array.from({ length: 5 }, (_, i) => ({
-      userId: johnUser.id,
-      organizationId: insertedOrg2.id,
-      title: faker.lorem.sentence({ min: 3, max: 6 }),
-      description: faker.lorem.paragraph(),
-      completed: i % 3 === 0 ? 'true' : 'false',
-      priority: taskPriorities[i % 3],
-      dueDate: faker.date.future(),
-    }));
+    await db.insert(customers).values([...org1Customers, ...org2Customers]);
 
-    await db
-      .insert(tasks)
-      .values([...janePersonalTasks, ...org1Tasks, ...johnPersonalTasks, ...org2Tasks]);
-
-    console.log('  ✅ Created 5 personal tasks for Jane');
-    console.log(`  ✅ Created 5 organization tasks for ${org1Name}`);
-    console.log('  ✅ Created 5 personal tasks for John');
-    console.log(`  ✅ Created 5 organization tasks for ${org2Name}\n`);
+    console.log(`  ✅ Created ${org1Customers.length} customers for ${org1Name}`);
+    console.log(`  ✅ Created ${org2Customers.length} customers for ${org2Name}\n`);
 
     // Step 8: Create activity logs
     console.log('📊 Creating activity logs...');
@@ -572,7 +558,7 @@ async function seed() {
     console.log('  • 2 organizations created');
     console.log('  • 3 organization memberships created');
     console.log('  • 2 subscriptions created');
-    console.log('  • 20 tasks created');
+    console.log('  • 20 customers created');
     console.log('  • 10 activity logs created');
     console.log('  • 30 orders created');
     console.log(`  • ${allHistoryEntries.length} order history entries created\n`);
