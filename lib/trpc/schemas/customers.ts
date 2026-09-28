@@ -43,6 +43,8 @@ export const customerListFiltersSchema = z
     searchQuery: z.string().optional(),
     organizationId: z.uuid(),
     page: z.number().int().positive().default(1),
+    // Page cursor used by infinite queries (kanban columns); takes precedence over `page`
+    cursor: z.number().int().positive().nullish(),
     limit: z.number().int().positive().max(100).default(10),
     sortBy: z.enum(['createdAt', 'lastName', 'lastContactedAt']).default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),

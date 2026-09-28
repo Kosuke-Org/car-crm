@@ -10,6 +10,7 @@ import type { inferRouterInputs } from '@trpc/server';
 import { trpc } from '@/lib/trpc/client';
 import type { AppRouter } from '@/lib/trpc/router';
 import type { ExportType } from '@/lib/trpc/schemas/customers';
+import type { CustomerStatus } from '@/lib/types';
 import { downloadFile } from '@/lib/utils';
 
 import { useToast } from '@/hooks/use-toast';
@@ -42,6 +43,48 @@ export function useCustomersList(filters: CustomerListFilters) {
     totalPages: customersData?.totalPages ?? 0,
     isLoading,
     error,
+  };
+}
+
+/**
+ * Hook for a single kanban column: customers of one status, loaded page by page
+ */
+export function useCustomersBoardColumn({
+  organizationId,
+  status,
+  searchQuery,
+  pageSize = 20,
+}: {
+  organizationId: string;
+  status: CustomerStatus;
+  searchQuery?: string;
+  pageSize?: number;
+}) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    trpc.customers.list.useInfiniteQuery(
+      {
+        organizationId,
+        statuses: [status],
+        searchQuery,
+        limit: pageSize,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      },
+      {
+        staleTime: 1000 * 60 * 2, // 2 minutes
+        enabled: !!organizationId,
+        getNextPageParam: (lastPage) =>
+          lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+      }
+    );
+
+  return {
+    customers: data?.pages.flatMap((p) => p.customers) ?? [],
+    total: data?.pages[0]?.total ?? 0,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
   };
 }
 
@@ -90,7 +133,7 @@ export function useCustomerActions() {
         title: 'Success',
         description: 'Customer updated successfully',
       });
-      utils.customers.list.invalidate();
+      return utils.customers.list.invalidate();
     },
     onError: (error) => {
       toast({
