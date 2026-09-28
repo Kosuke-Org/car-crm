@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'AutoYard - CRM for car dealerships',
-    short_name: 'AutoYard',
+    name: 'BeyondCars - CRM for car dealerships',
+    short_name: 'BeyondCars',
     description:
-      'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
+      'BeyondCars keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

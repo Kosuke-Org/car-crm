@@ -3,7 +3,18 @@
 import Link from 'next/link';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Rocket } from 'lucide-react';
+import {
+  ArrowRight,
+  CarFront,
+  FilePenLine,
+  Gauge,
+  KeyRound,
+  MessagesSquare,
+  Rocket,
+} from 'lucide-react';
+
+import { CarIllustration } from '@/app/(logged-out)/home/components/car-illustration';
+import { RoadScene } from '@/app/(logged-out)/home/components/road-scene';
 
 import { cn } from '@/lib/utils';
 
@@ -60,23 +71,28 @@ const replaced = [
 const capabilities = [
   {
     title: 'One queue for every enquiry',
+    icon: MessagesSquare,
     body: 'Portals, website forms, WhatsApp, missed calls and walk-ins land in one list, stamped with the car the buyer was looking at. The response clock starts the second it arrives.',
     wide: true,
   },
   {
     title: 'Stock that stays honest',
+    icon: CarFront,
     body: 'VIN decode, recon status, photo sets and days on lot. Change a price once and the portals follow.',
   },
   {
     title: 'Test drives in the diary',
+    icon: KeyRound,
     body: 'Buyers pick a slot themselves. The car is prepped, fuelled and out front when they turn up.',
   },
   {
     title: 'Part-ex and paperwork on one record',
+    icon: FilePenLine,
     body: 'Valuation, finance quote and order form sit with the deal, signed from a phone on the floor.',
   },
   {
     title: 'Numbers per rooftop',
+    icon: Gauge,
     body: 'Gross per unit, source ROI and aged stock, by site and by salesperson, without exporting anything.',
   },
 ];
@@ -85,7 +101,7 @@ const faqs = [
   {
     question: 'Does it replace our DMS?',
     answer:
-      'No. AutoYard covers everything up to the signature. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
+      'No. BeyondCars covers everything up to the signature. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
   },
   {
     question: 'How long until we are actually using it?',
@@ -128,8 +144,8 @@ export function Home() {
 
   return (
     <div className="bg-background min-h-screen w-full pt-[60px]">
-      <section className="from-accent/60 bg-gradient-to-b to-transparent px-4 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20">
-        <div className="container mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-20">
+      <section className="from-accent/60 bg-gradient-to-b to-transparent pt-16 sm:pt-24">
+        <div className="container mx-auto grid max-w-6xl gap-14 px-4 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-20">
           <motion.div
             className="min-w-0"
             initial={{ opacity: 0, y: 16 }}
@@ -176,37 +192,44 @@ export function Home() {
 
                 <ul className="space-y-4">
                   {todaysLeads.map((lead) => (
-                    <li
-                      key={lead.name}
-                      className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">
-                          {lead.name} <span className="text-muted-foreground">·</span>{' '}
-                          {lead.vehicle}
-                        </p>
-                        <p className="text-muted-foreground mt-0.5 text-xs">{lead.meta}</p>
-                      </div>
-                      <span
-                        className={cn(
-                          'w-fit shrink-0 rounded-md px-2 py-1 text-xs font-medium',
-                          lead.tone
-                        )}
-                      >
-                        {lead.status}
+                    <li key={lead.name} className="flex items-start gap-3">
+                      <span className="bg-accent text-primary flex size-9 shrink-0 items-center justify-center rounded-md">
+                        <CarFront className="size-4" />
                       </span>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">
+                            {lead.name} <span className="text-muted-foreground">·</span>{' '}
+                            {lead.vehicle}
+                          </p>
+                          <p className="text-muted-foreground mt-0.5 text-xs">{lead.meta}</p>
+                        </div>
+                        <span
+                          className={cn(
+                            'w-fit shrink-0 rounded-md px-2 py-1 text-xs font-medium',
+                            lead.tone
+                          )}
+                        >
+                          {lead.status}
+                        </span>
+                      </div>
                     </li>
                   ))}
                 </ul>
 
-                <p className="text-muted-foreground border-t pt-4 text-sm">
-                  Average days on lot <span className="text-foreground font-medium">24</span>, down
-                  from 39 since March.
+                <p className="text-muted-foreground flex items-center gap-2 border-t pt-4 text-sm">
+                  <Gauge className="text-primary size-4 shrink-0" />
+                  <span>
+                    Average days on lot <span className="text-foreground font-medium">24</span>,
+                    down from 39 since March.
+                  </span>
                 </p>
               </CardContent>
             </Card>
           </motion.div>
         </div>
+
+        <RoadScene />
       </section>
 
       <section className="px-4 py-16 sm:px-6 sm:py-24">
@@ -237,6 +260,9 @@ export function Home() {
           <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
             {capabilities.map((item) => (
               <div key={item.title} className={cn(item.wide && 'md:col-span-2 md:max-w-3xl')}>
+                <span className="bg-background text-primary mb-4 flex size-10 items-center justify-center rounded-md">
+                  <item.icon className="size-5" />
+                </span>
                 <h3
                   className={cn(
                     'font-semibold tracking-tight',
@@ -290,13 +316,17 @@ export function Home() {
       </section>
 
       <section className="px-4 pb-16 sm:px-6 sm:pb-24">
-        <div className="bg-primary text-primary-foreground container mx-auto max-w-6xl rounded-lg px-6 py-14 sm:px-14 sm:py-20">
-          <div className="max-w-2xl">
+        <div className="bg-primary text-primary-foreground relative container mx-auto max-w-6xl overflow-hidden rounded-lg px-6 py-14 sm:px-14 sm:py-20">
+          <CarIllustration
+            variant="outline"
+            className="text-primary-foreground/15 pointer-events-none absolute -right-16 bottom-10 hidden w-[30rem] lg:block"
+          />
+          <div className="relative max-w-2xl">
             <h2 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
               There is an enquiry waiting right now
             </h2>
             <p className="text-primary-foreground/80 mt-4 text-base sm:text-lg">
-              Import your stock and answer it from AutoYard today.
+              Import your stock and answer it from BeyondCars today.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">

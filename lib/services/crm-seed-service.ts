@@ -54,7 +54,7 @@ export async function seedCrmDemo(): Promise<{
     }
 
     const dealerships = [
-      { slug: 'jane-smith-co', name: 'AutoYard Motors', owner: reps[0], count: 24 },
+      { slug: 'jane-smith-co', name: 'BeyondCars Motors', owner: reps[0], count: 24 },
       { slug: 'john-doe-ltd', name: 'Lakeside Auto', owner: reps[1], count: 16 },
     ];
     const vehicles = [

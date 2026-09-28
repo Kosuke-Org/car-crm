@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172 32" width="172" height="32">
   <rect width="32" height="32" rx="7" fill="#005F63" />
   <g transform="translate(0 -1.5)">
     <path
@@ -21,4 +21,15 @@
       stroke-dasharray="4.5 3.5"
     />
   </g>
+  <text
+    x="42"
+    y="22"
+    font-family="Geist, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="21"
+    font-weight="600"
+    letter-spacing="-0.6"
+    fill="#12252A"
+  >
+    BeyondCars
+  </text>
 </svg>

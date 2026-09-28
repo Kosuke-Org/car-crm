@@ -23,11 +23,11 @@ const ogImageSquare = `${baseUrl}/opengraph-image-square.png`;
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    template: '%s | AutoYard',
-    default: 'AutoYard - CRM for car dealerships',
+    template: '%s | BeyondCars',
+    default: 'BeyondCars - CRM for car dealerships',
   },
   description:
-    'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday. CRM for car retail, from one pitch to twenty rooftops.',
+    'BeyondCars keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday. CRM for car retail, from one pitch to twenty rooftops.',
   keywords: [
     'car dealership CRM',
     'automotive CRM',
@@ -38,11 +38,11 @@ export const metadata: Metadata = {
     'test drive scheduling',
     'used car dealer software',
   ],
-  authors: [{ name: 'AutoYard' }],
-  creator: 'AutoYard',
-  publisher: 'AutoYard',
+  authors: [{ name: 'BeyondCars' }],
+  creator: 'BeyondCars',
+  publisher: 'BeyondCars',
   openGraph: {
-    title: 'AutoYard - CRM for car dealerships',
+    title: 'BeyondCars - CRM for car dealerships',
     description:
       'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     type: 'website',
@@ -51,19 +51,19 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'AutoYard - CRM for car dealerships',
+        alt: 'BeyondCars - CRM for car dealerships',
       },
       {
         url: ogImageSquare,
         width: 500,
         height: 500,
-        alt: 'AutoYard - CRM for car dealerships',
+        alt: 'BeyondCars - CRM for car dealerships',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AutoYard - CRM for car dealerships',
+    title: 'BeyondCars - CRM for car dealerships',
     description:
       'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     images: [
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'AutoYard - CRM for car dealerships',
+        alt: 'BeyondCars - CRM for car dealerships',
       },
     ],
   },

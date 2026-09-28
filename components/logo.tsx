@@ -6,17 +6,34 @@ interface LogoProps {
 
 export function LogoMark({ className }: LogoProps) {
   return (
-    <svg viewBox="0 0 32 32" role="img" aria-label="AutoYard" className={cn('h-7 w-7', className)}>
+    <svg
+      viewBox="0 0 32 32"
+      role="img"
+      aria-label="BeyondCars"
+      className={cn('h-7 w-7', className)}
+    >
       <rect width="32" height="32" rx="7" className="fill-primary" />
-      <path
-        d="M7 25 L16 7 L25 25"
-        fill="none"
-        strokeWidth="4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="stroke-primary-foreground"
-      />
-      <path d="M11.5 18.5 H20.5" strokeWidth="4" strokeLinecap="round" className="stroke-chart-2" />
+      <g transform="translate(0 -1.5)">
+        <path
+          d="M3.6 19.6 L3.6 17.4 C3.6 16.4 4.2 15.8 5.2 15.6 L8.6 15 L12.2 11.6 C12.9 11 13.7 10.7 14.6 10.7 L18.6 10.7 C19.6 10.7 20.4 11.1 21.1 11.8 L24 14.8 L26.6 15.3 C27.8 15.5 28.4 16.2 28.4 17.3 L28.4 19.6 C28.4 20.2 28 20.6 27.4 20.6 L4.6 20.6 C4 20.6 3.6 20.2 3.6 19.6 Z"
+          className="fill-primary-foreground"
+        />
+        <path
+          d="M10.9 14.8 L13.3 12.6 C13.7 12.3 14.1 12.2 14.6 12.2 L15.7 12.2 L15.7 14.8 Z M17.1 12.2 L18.5 12.2 C19 12.2 19.4 12.4 19.8 12.8 L21.8 14.8 L17.1 14.8 Z"
+          className="fill-primary"
+        />
+        <circle cx="9.4" cy="20.6" r="3.3" className="fill-primary" />
+        <circle cx="9.4" cy="20.6" r="2" className="fill-primary-foreground" />
+        <circle cx="22.6" cy="20.6" r="3.3" className="fill-primary" />
+        <circle cx="22.6" cy="20.6" r="2" className="fill-primary-foreground" />
+        <path
+          d="M5.5 26.2 H26.5"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeDasharray="4.5 3.5"
+          className="stroke-brand-accent"
+        />
+      </g>
     </svg>
   );
 }
@@ -25,7 +42,7 @@ export function Logo({ className }: LogoProps) {
   return (
     <span className={cn('flex items-center gap-2', className)}>
       <LogoMark />
-      <span className="text-lg font-semibold tracking-tight">AutoYard</span>
+      <span className="text-lg font-semibold tracking-tight">BeyondCars</span>
     </span>
   );
 }

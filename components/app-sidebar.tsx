@@ -125,7 +125,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       <Sidebar variant="inset" {...props}>
         <SidebarHeader className="gap-3">
-          <Link href="/" aria-label="AutoYard home" className="px-2 pt-1">
+          <Link href="/" aria-label="BeyondCars home" className="px-2 pt-1">
             <Logo />
           </Link>
           <SidebarOrgSwitcher />

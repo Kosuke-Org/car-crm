@@ -17,16 +17,16 @@ const HomepageStructuredData = () => {
   const websiteData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'AutoYard',
+    name: 'BeyondCars',
     description:
-      'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
+      'BeyondCars keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
     url: baseUrl,
   };
 
   const softwareData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'AutoYard',
+    name: 'BeyondCars',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web Browser',
     description:
@@ -39,8 +39,8 @@ const HomepageStructuredData = () => {
     },
     author: {
       '@type': 'Organization',
-      name: 'AutoYard',
-      logo: `${baseUrl}/logos/autoyard-logo.svg`,
+      name: 'BeyondCars',
+      logo: `${baseUrl}/logos/beyondcars-logo.svg`,
     },
   };
 
