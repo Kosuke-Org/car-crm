@@ -1,5 +1,5 @@
 /* ============================================================================
- * AUTOYARD - GLOBAL STYLES
+ * BEYONDCARS - GLOBAL STYLES
  * ============================================================================ */
 
 /* ----------------------------------------------------------------------------
@@ -211,7 +211,7 @@
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.18 0.015 200);
 
-    /* Brand Colors - AutoYard petrol green */
+    /* Brand Colors - BeyondCars petrol green */
     --primary: oklch(0.44 0.075 200);
     --primary-foreground: oklch(0.99 0 0);
     --secondary: oklch(0.96 0.02 200);

@@ -17,7 +17,7 @@ test('an anonymous request to an org dashboard is redirected to sign-in', async 
   await expect(page).toHaveURL(/\/sign-in/);
   // The originally requested path is preserved so the user resumes after auth.
   expect(new URL(page.url()).searchParams.get('redirect')).toBe(target);
-  await expect(page.getByText('Sign in to AutoYard')).toBeVisible();
+  await expect(page.getByText('Sign in to BeyondCars')).toBeVisible();
 
   // And nothing from the protected page leaked into the response.
   await expect(page.getByRole('heading', { name: 'Dealership overview' })).toHaveCount(0);

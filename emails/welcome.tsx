@@ -16,14 +16,14 @@ export const WelcomeEmail = ({
   settingsUrl,
 }: WelcomeEmailProps) => {
   return (
-    <BaseLayout preview={`Welcome to AutoYard, ${firstName}! 🎉`}>
+    <BaseLayout preview={`Welcome to BeyondCars, ${firstName}! 🎉`}>
       {/* Welcome Message */}
       <Section className="mb-8">
         <Text className="mt-0 mb-4 text-3xl font-bold text-stone-900">
           Welcome, {firstName}! 🎉
         </Text>
         <Text className="mb-4 text-base leading-relaxed text-stone-600">
-          Thank you for joining AutoYard! Your account (<strong>{email}</strong>) is ready.
+          Thank you for joining BeyondCars! Your account (<strong>{email}</strong>) is ready.
         </Text>
         <Text className="mb-0 text-base leading-relaxed text-stone-600">
           Import your stock and open enquiries, and your whole floor can work from one list instead

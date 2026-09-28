@@ -14,7 +14,7 @@ export default function Footer({ className }: FooterProps) {
       <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="flex flex-col items-center gap-1 md:flex-row md:items-baseline md:gap-2">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} AutoYard. All rights reserved.
+            © {new Date().getFullYear()} BeyondCars. All rights reserved.
           </p>
         </div>
         <div className="flex items-center gap-4">

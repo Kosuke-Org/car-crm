@@ -49,7 +49,7 @@ export const SignIn = () => {
     <Card>
       <CardHeader>
         <LogoMark className="mb-3 h-8 w-8" />
-        <CardTitle>Sign in to AutoYard</CardTitle>
+        <CardTitle>Sign in to BeyondCars</CardTitle>
         <CardDescription>Welcome back! Please sign in to continue</CardDescription>
       </CardHeader>
       <CardContent>
