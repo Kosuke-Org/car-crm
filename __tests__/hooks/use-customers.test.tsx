@@ -3,7 +3,12 @@
  */
 import type { ReactNode } from 'react';
 
-import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useInfiniteQuery,
+  useMutation,
+} from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { type Mock, vi } from 'vitest';
 
@@ -37,6 +42,8 @@ vi.mock('@/lib/trpc/client', () => ({
     customers: {
       list: {
         useInfiniteQuery: vi.fn(),
+        // Read by getQueryKey, as on the real tRPC proxy
+        _def: () => ({ path: ['customers', 'list'] }),
       },
       update: {
         useMutation: vi.fn(),
@@ -91,6 +98,12 @@ const boardInput = (status: string, searchQuery?: string) => ({
   sortBy: 'createdAt',
   sortOrder: 'desc',
 });
+
+// A customers.list query key as tRPC builds it
+const listKey = (listInput: object, type: 'infinite' | 'query') => [
+  ['customers', 'list'],
+  { input: listInput, type },
+];
 
 describe('useCustomerBoardColumn', () => {
   beforeEach(() => {
@@ -233,6 +246,14 @@ describe('useMoveCustomer', () => {
     vi.clearAllMocks();
     queryClient = new QueryClient();
     updateRequest = vi.fn().mockResolvedValue({ ...customer, status: 'prospect' });
+    // As tRPC's utils.customers.list.invalidate does, on the test's QueryClient
+    mockUtils.customers.list.invalidate.mockImplementation(
+      (input?: object, filters?: object, options?: object) =>
+        queryClient.invalidateQueries(
+          { ...filters, queryKey: [['customers', 'list'], ...(input ? [{ input }] : [])] },
+          options
+        )
+    );
     // A real mutation under tRPC's key, so pending updates land in the mutation cache
     (trpc.customers.update.useMutation as Mock).mockImplementation(() =>
       useMutation({
@@ -408,10 +429,6 @@ describe('useMoveCustomer', () => {
     expect(options?.cancelRefetch).not.toBe(false);
 
     // Apply the filters to tRPC-shaped keys, as utils.customers.list.invalidate does
-    const listKey = (listInput: object, type: 'infinite' | 'query') => [
-      ['customers', 'list'],
-      { input: listInput, type },
-    ];
     const keys = {
       leadJane: listKey(boardInput('lead', 'jane'), 'infinite'),
       prospectJane: listKey(boardInput('prospect', 'jane'), 'infinite'),
@@ -447,6 +464,85 @@ describe('useMoveCustomer', () => {
         keys.tableWithTarget,
       ])
     );
+  });
+
+  it('restarts a first load that read the customer before the save, so the fresh read wins', async () => {
+    // Stands in for the customer row: a list request reads it when it is sent
+    let savedStatus: string = customer.status;
+    const readColumn = (status: string) => makePage(savedStatus === status ? [customer] : []);
+    let finishSave = () => {};
+    updateRequest.mockImplementationOnce(
+      (input: { status: string }) =>
+        new Promise((resolve) => {
+          finishSave = () => {
+            savedStatus = input.status;
+            resolve({ ...customer, status: input.status });
+          };
+        })
+    );
+    // First loads of the "doe" columns stay in flight until the test delivers them
+    let deliverEarlyLeadRead = () => {};
+    const leadRequest = vi
+      .fn<() => Promise<ReturnType<typeof makePage>>>()
+      .mockImplementationOnce(() => {
+        const page = readColumn('lead');
+        return new Promise((resolve) => {
+          deliverEarlyLeadRead = () => resolve(page);
+        });
+      })
+      .mockImplementation(() => Promise.resolve(readColumn('lead')));
+    let deliverActiveRead = () => {};
+    const activeRequest = vi.fn<() => Promise<ReturnType<typeof makePage>>>(() => {
+      const page = readColumn('active');
+      return new Promise((resolve) => {
+        deliverActiveRead = () => resolve(page);
+      });
+    });
+    const renderColumn = (status: string, request: () => Promise<ReturnType<typeof makePage>>) =>
+      renderHook(
+        () =>
+          useInfiniteQuery({
+            queryKey: listKey(boardInput(status, 'doe'), 'infinite'),
+            queryFn: request,
+            initialPageParam: 1,
+            getNextPageParam: () => undefined,
+            staleTime: 1000 * 60 * 2,
+          }),
+        { wrapper }
+      );
+
+    const board = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }), {
+      wrapper,
+    });
+    let move: Promise<void> = Promise.resolve();
+    await act(async () => {
+      move = board.result.current.moveCustomer({ customer, status: 'prospect' });
+    });
+    await waitFor(() => expect(updateRequest).toHaveBeenCalledTimes(1));
+
+    // The search changes to "doe" while the move saves: its columns read the customer first
+    const leadColumn = renderColumn('lead', leadRequest);
+    const activeColumn = renderColumn('active', activeRequest);
+    await waitFor(() => expect(leadRequest).toHaveBeenCalledTimes(1));
+    expect(activeRequest).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      finishSave();
+      await move;
+    });
+
+    // A new load of the Lead column starts after the write
+    await waitFor(() => expect(leadRequest).toHaveBeenCalledTimes(2));
+    // The read from before the write lands last and is dropped
+    await act(async () => deliverEarlyLeadRead());
+    await waitFor(() => expect(leadColumn.result.current.isSuccess).toBe(true));
+    expect(leadColumn.result.current.data?.pages).toEqual([makePage([])]);
+    expect(leadColumn.result.current.isError).toBe(false);
+
+    // A column of another status keeps its load
+    await act(async () => deliverActiveRead());
+    await waitFor(() => expect(activeColumn.result.current.isSuccess).toBe(true));
+    expect(activeRequest).toHaveBeenCalledTimes(1);
   });
 
   it('blocks another move of the same customer until the first one settles', async () => {

@@ -7,8 +7,8 @@
 
 import { useRef } from 'react';
 
-import { type Mutation, useMutationState, useQueryClient } from '@tanstack/react-query';
-import { getMutationKey } from '@trpc/react-query';
+import { type Mutation, type Query, useMutationState, useQueryClient } from '@tanstack/react-query';
+import { getMutationKey, getQueryKey } from '@trpc/react-query';
 import type { inferRouterInputs } from '@trpc/server';
 
 import { trpc } from '@/lib/trpc/client';
@@ -33,6 +33,11 @@ const updateCustomerMutationKey = getMutationKey(trpc.customers.update);
 
 function getUpdatedCustomerId(mutation: Mutation) {
   return (mutation.state.variables as Partial<UpdateCustomerInput> | undefined)?.id;
+}
+
+function getListStatuses(query: Pick<Query, 'queryKey'>) {
+  const [, keyParams] = query.queryKey as [unknown, { input?: CustomerListFilters }?];
+  return keyParams?.input?.statuses;
 }
 
 /**
@@ -244,21 +249,26 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
       });
     } finally {
       movingIdsRef.current.delete(customer.id);
-      // Mark every list stale, then refetch the ones on screen that can hold the customer:
-      // its old or new column under any search, and any table whose status filter is empty
-      // or includes either status. A fetch already running on one of those restarts, as it
-      // may have read the customer before the write; columns of other statuses keep theirs.
+      // The lists that can hold the customer: its old or new column under any search, and
+      // any table whose status filter is empty or includes either status
       const movedStatuses = [customer.status, status];
+      const canHoldCustomer = (query: Pick<Query, 'queryKey'>) => {
+        const statuses = getListStatuses(query);
+        return !statuses?.length || movedStatuses.some((s) => statuses.includes(s));
+      };
+      // A refetch joins a first load still running instead of restarting it, and that load
+      // may have read the customer before the write. Cancelling it reverts the query to its
+      // unloaded state (no error), so the refetch below starts a new load.
+      await queryClient.cancelQueries({
+        queryKey: getQueryKey(trpc.customers.list, { organizationId }),
+        fetchStatus: 'fetching',
+        predicate: (query) => query.state.data === undefined && canHoldCustomer(query),
+      });
+      // Mark every list stale, then refetch the ones on screen that can hold the customer.
+      // A fetch already running on one of those restarts, as it may have read the customer
+      // before the write; columns of other statuses keep theirs.
       utils.customers.list.invalidate(undefined, { refetchType: 'none' });
-      utils.customers.list.invalidate(
-        { organizationId },
-        {
-          predicate: (query) => {
-            const statuses = query.queryKey[1]?.input?.statuses;
-            return !statuses?.length || movedStatuses.some((s) => statuses.includes(s));
-          },
-        }
-      );
+      utils.customers.list.invalidate({ organizationId }, { predicate: canHoldCustomer });
       utils.customers.stats.invalidate();
       utils.customers.get.invalidate({ id: customer.id, organizationId });
     }
