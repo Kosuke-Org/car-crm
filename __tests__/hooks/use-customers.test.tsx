@@ -45,7 +45,11 @@ vi.mock('@/lib/trpc/client', () => ({
 
 const organizationId = '22222222-2222-4222-8222-222222222222';
 
-function makeCustomer(id: string, status: 'lead' | 'prospect' | 'active' | 'inactive') {
+function makeCustomer(
+  id: string,
+  status: 'lead' | 'prospect' | 'active' | 'inactive',
+  createdAt = '2026-01-01'
+) {
   return {
     id,
     firstName: 'Jane',
@@ -57,7 +61,7 @@ function makeCustomer(id: string, status: 'lead' | 'prospect' | 'active' | 'inac
     interestedInModel: 'Model Y',
     notes: null,
     lastContactedAt: null,
-    createdAt: new Date('2026-01-01'),
+    createdAt: new Date(createdAt),
     updatedAt: new Date('2026-01-01'),
     userDisplayName: 'Rep',
     userEmail: 'rep@example.com',
@@ -139,6 +143,24 @@ describe('useCustomerBoardColumn', () => {
     expect(result.current.total).toBe(41);
     expect(result.current.hasNextPage).toBe(true);
   });
+
+  it('reports any fetch and loads the next page without cancelling a running refetch', () => {
+    const fetchNextPage = vi.fn();
+    (trpc.customers.list.useInfiniteQuery as Mock).mockReturnValue({
+      data: { pages: [makePage([], { total: 25, totalPages: 2 })] },
+      isLoading: false,
+      isFetching: true,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      fetchNextPage,
+    });
+
+    const { result } = renderHook(() => useCustomerBoardColumn({ organizationId, status: 'lead' }));
+
+    expect(result.current.isFetching).toBe(true);
+    result.current.fetchNextPage();
+    expect(fetchNextPage).toHaveBeenCalledWith({ cancelRefetch: false });
+  });
 });
 
 describe('useMoveCustomer', () => {
@@ -167,7 +189,7 @@ describe('useMoveCustomer', () => {
 
     expect(mutateAsync).toHaveBeenCalledWith({ id: 'a', organizationId, status: 'prospect' });
 
-    const [[fromInput, removeFromSource], [toInput, addToTarget]] =
+    const [[fromInput, removeFromSource], [toInput]] =
       mockUtils.customers.list.setInfiniteData.mock.calls;
     expect(fromInput).toEqual(boardInput('lead', 'jane'));
     expect(toInput).toEqual(boardInput('prospect', 'jane'));
@@ -180,20 +202,178 @@ describe('useMoveCustomer', () => {
     expect(source.pages[0].customers.map((c: { id: string }) => c.id)).toEqual(['b']);
     expect(source.pages[0].total).toBe(1);
 
-    const existing = makeCustomer('c', 'prospect');
-    const target = addToTarget({
-      pages: [makePage([existing], { total: 1 }), makePage([], { page: 2, total: 1 })],
-      pageParams: [1, 2],
-    });
-    expect(target.pages[0].customers[0]).toEqual({ ...customer, status: 'prospect' });
-    expect(target.pages[0].customers).toHaveLength(2);
-    expect(target.pages[1].customers).toHaveLength(0);
-    expect(target.pages.every((p: { total: number }) => p.total === 2)).toBe(true);
-
-    expect(mockUtils.customers.list.invalidate).toHaveBeenCalled();
     expect(mockUtils.customers.stats.invalidate).toHaveBeenCalled();
     expect(mockUtils.customers.get.invalidate).toHaveBeenCalledWith({ id: 'a', organizationId });
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Customer moved' }));
+  });
+
+  describe('placing the card in the target column (createdAt desc)', () => {
+    const moved = makeCustomer('a', 'lead', '2026-02-15');
+
+    async function getTargetUpdater() {
+      const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+      await act(() => result.current.moveCustomer({ customer: moved, status: 'prospect' }));
+      return mockUtils.customers.list.setInfiniteData.mock.calls[1][1];
+    }
+
+    const ids = (page: { customers: { id: string }[] }) => page.customers.map((c) => c.id);
+
+    it('inserts the card before the first older loaded card', async () => {
+      const addToTarget = await getTargetUpdater();
+      const target = addToTarget({
+        pages: [
+          makePage(
+            [
+              makeCustomer('new', 'prospect', '2026-03-01'),
+              makeCustomer('old', 'prospect', '2026-01-01'),
+            ],
+            { total: 2 }
+          ),
+        ],
+        pageParams: [1],
+      });
+
+      expect(ids(target.pages[0])).toEqual(['new', 'a', 'old']);
+      expect(target.pages[0].customers[1]).toEqual({ ...moved, status: 'prospect' });
+      expect(target.pages[0].total).toBe(3);
+    });
+
+    it('inserts into a later loaded page when that is where the card sorts', async () => {
+      const addToTarget = await getTargetUpdater();
+      const target = addToTarget({
+        pages: [
+          makePage([makeCustomer('p1', 'prospect', '2026-03-01')], { total: 30, totalPages: 2 }),
+          makePage([makeCustomer('p2', 'prospect', '2026-01-01')], {
+            page: 2,
+            total: 30,
+            totalPages: 2,
+          }),
+        ],
+        pageParams: [1, 2],
+      });
+
+      expect(ids(target.pages[0])).toEqual(['p1']);
+      expect(ids(target.pages[1])).toEqual(['a', 'p2']);
+      expect(target.pages.every((p: { total: number }) => p.total === 31)).toBe(true);
+    });
+
+    it('appends the card when it is the oldest and the column is fully loaded', async () => {
+      const addToTarget = await getTargetUpdater();
+      const target = addToTarget({
+        pages: [makePage([makeCustomer('new', 'prospect', '2026-03-01')], { total: 1 })],
+        pageParams: [1],
+      });
+
+      expect(ids(target.pages[0])).toEqual(['new', 'a']);
+    });
+
+    it('adds the card to an empty column', async () => {
+      const addToTarget = await getTargetUpdater();
+      const target = addToTarget({
+        pages: [makePage([], { total: 0, totalPages: 0 })],
+        pageParams: [1],
+      });
+
+      expect(ids(target.pages[0])).toEqual(['a']);
+      expect(target.pages[0].total).toBe(1);
+    });
+
+    it('only raises the total when the card sorts after the loaded cards and more pages remain', async () => {
+      const addToTarget = await getTargetUpdater();
+      const target = addToTarget({
+        pages: [
+          makePage([makeCustomer('new', 'prospect', '2026-03-01')], { total: 21, totalPages: 2 }),
+        ],
+        pageParams: [1],
+      });
+
+      expect(ids(target.pages[0])).toEqual(['new']);
+      expect(target.pages[0].total).toBe(22);
+    });
+
+    it('only raises the total when the card is the oldest and the loaded last page is full', async () => {
+      const addToTarget = await getTargetUpdater();
+      const fullPage = Array.from({ length: 20 }, (_, i) =>
+        makeCustomer(`p${i}`, 'prospect', '2026-03-01')
+      );
+      const target = addToTarget({
+        pages: [makePage(fullPage, { total: 20, totalPages: 1 })],
+        pageParams: [1],
+      });
+
+      expect(target.pages[0].customers).toHaveLength(20);
+      expect(ids(target.pages[0])).not.toContain('a');
+      expect(target.pages[0].total).toBe(21);
+    });
+  });
+
+  it('cancels and refetches only the two columns it changes', async () => {
+    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }));
+
+    await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
+
+    const { cancel, invalidate } = mockUtils.customers.list;
+    expect(cancel).toHaveBeenCalledTimes(2);
+    expect(cancel).toHaveBeenCalledWith(boardInput('lead', 'jane'));
+    expect(cancel).toHaveBeenCalledWith(boardInput('prospect', 'jane'));
+
+    expect(invalidate).toHaveBeenCalledTimes(3);
+    expect(invalidate).toHaveBeenCalledWith(undefined, { refetchType: 'none' });
+    expect(invalidate).toHaveBeenCalledWith(boardInput('lead', 'jane'));
+    expect(invalidate).toHaveBeenCalledWith(boardInput('prospect', 'jane'));
+  });
+
+  it('blocks another move of the same customer until the first one settles', async () => {
+    let resolveFirst: (value: unknown) => void = () => {};
+    mutateAsync.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFirst = resolve;
+        })
+    );
+    const other = makeCustomer('b', 'lead');
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+
+    let firstMove: Promise<void> = Promise.resolve();
+    await act(async () => {
+      firstMove = result.current.moveCustomer({ customer, status: 'prospect' });
+      // Same tick, before the first move reaches the server
+      await result.current.moveCustomer({ customer, status: 'active' });
+    });
+
+    expect(result.current.movingCustomerIds.has('a')).toBe(true);
+    expect(mutateAsync).toHaveBeenCalledTimes(1);
+
+    // After the first request is sent, the card is still locked
+    const movedCustomer = { ...customer, status: 'prospect' as const };
+    await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
+    expect(mutateAsync).toHaveBeenCalledTimes(1);
+
+    // Other customers stay movable
+    await act(() => result.current.moveCustomer({ customer: other, status: 'active' }));
+    expect(mutateAsync).toHaveBeenCalledTimes(2);
+    expect(mutateAsync).toHaveBeenLastCalledWith({ id: 'b', organizationId, status: 'active' });
+
+    await act(async () => {
+      resolveFirst({ ...customer, status: 'prospect' });
+      await firstMove;
+    });
+
+    expect(result.current.movingCustomerIds.has('a')).toBe(false);
+    await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
+    expect(mutateAsync).toHaveBeenCalledTimes(3);
+    expect(mutateAsync).toHaveBeenLastCalledWith({ id: 'a', organizationId, status: 'active' });
+  });
+
+  it('unlocks the customer when the save fails', async () => {
+    mutateAsync.mockRejectedValueOnce(new Error('Customer not found'));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+
+    await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
+    expect(result.current.movingCustomerIds.size).toBe(0);
+
+    await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
+    expect(mutateAsync).toHaveBeenCalledTimes(2);
   });
 
   it('restores both columns and shows an error when the save fails', async () => {

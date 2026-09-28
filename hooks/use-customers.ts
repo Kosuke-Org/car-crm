@@ -5,6 +5,8 @@
 
 'use client';
 
+import { useRef, useState } from 'react';
+
 import type { inferRouterInputs } from '@trpc/server';
 
 import { trpc } from '@/lib/trpc/client';
@@ -75,7 +77,7 @@ export function useCustomerBoardColumn(params: {
   status: CustomerStatus;
   searchQuery?: string;
 }) {
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isFetching, hasNextPage, fetchNextPage, isFetchingNextPage } =
     trpc.customers.list.useInfiniteQuery(getBoardColumnInput(params), {
       staleTime: 1000 * 60 * 2, // 2 minutes
       placeholderData: (previousData) => previousData,
@@ -93,21 +95,30 @@ export function useCustomerBoardColumn(params: {
     customers,
     total: pages[0]?.total ?? 0,
     isLoading,
+    isFetching,
     hasNextPage,
     isFetchingNextPage,
-    fetchNextPage: () => fetchNextPage(),
+    // Never cancel a running refetch: the next page would build on the optimistic first page
+    fetchNextPage: () => fetchNextPage({ cancelRefetch: false }),
   };
 }
 
 /**
  * Hook for moving a customer between board columns. Updates both columns
  * optimistically and rolls back if the server rejects the change.
+ * A customer cannot move again until its previous move settles, because the
+ * update has no version check and an older request could finish last.
  */
 export function useMoveCustomer(params: { organizationId: string; searchQuery?: string }) {
   const { organizationId, searchQuery } = params;
   const { toast } = useToast();
   const utils = trpc.useUtils();
   const updateCustomer = trpc.customers.update.useMutation();
+  // The ref blocks a second move in the same tick; the state re-renders the locked cards
+  const movingIdsRef = useRef(new Set<CustomerWithDetails['id']>());
+  const [movingCustomerIds, setMovingCustomerIds] = useState<
+    ReadonlySet<CustomerWithDetails['id']>
+  >(() => new Set());
 
   const moveCustomer = async ({
     customer,
@@ -116,7 +127,10 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
     customer: CustomerWithDetails;
     status: CustomerStatus;
   }) => {
-    if (customer.status === status) return;
+    if (customer.status === status || movingIdsRef.current.has(customer.id)) return;
+
+    movingIdsRef.current.add(customer.id);
+    setMovingCustomerIds(new Set(movingIdsRef.current));
 
     const fromInput = getBoardColumnInput({
       organizationId,
@@ -125,36 +139,59 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
     });
     const toInput = getBoardColumnInput({ organizationId, status, searchQuery });
 
-    await utils.customers.list.cancel();
+    await Promise.all([
+      utils.customers.list.cancel(fromInput),
+      utils.customers.list.cancel(toInput),
+    ]);
     const previousFrom = utils.customers.list.getInfiniteData(fromInput);
     const previousTo = utils.customers.list.getInfiniteData(toInput);
 
-    utils.customers.list.setInfiniteData(fromInput, (data) =>
-      data
-        ? {
-            ...data,
-            pages: data.pages.map((p) => ({
-              ...p,
-              customers: p.customers.filter((c) => c.id !== customer.id),
-              total: Math.max(p.total - 1, 0),
-            })),
-          }
-        : data
-    );
-    utils.customers.list.setInfiniteData(toInput, (data) =>
-      data
-        ? {
-            ...data,
-            pages: data.pages.map((p, index) => ({
-              ...p,
-              customers: index === 0 ? [{ ...customer, status }, ...p.customers] : p.customers,
-              total: p.total + 1,
-            })),
-          }
-        : data
-    );
-
     try {
+      utils.customers.list.setInfiniteData(fromInput, (data) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((p) => ({
+                ...p,
+                customers: p.customers.filter((c) => c.id !== customer.id),
+                total: Math.max(p.total - 1, 0),
+              })),
+            }
+          : data
+      );
+      utils.customers.list.setInfiniteData(toInput, (data) => {
+        if (!data) return data;
+        // Columns sort by createdAt desc: the card goes before the first older loaded card
+        const createdAt = customer.createdAt.getTime();
+        const isOlder = (c: CustomerWithDetails) => c.createdAt.getTime() < createdAt;
+        let targetPage = data.pages.findIndex((p) => p.customers.some(isOlder));
+        const lastPage = data.pages.at(-1);
+        // Older than every loaded card: it goes at the end only when the column is fully
+        // loaded and its last page has room; otherwise its server position is on a page
+        // not loaded yet, and only the total changes
+        if (
+          targetPage === -1 &&
+          lastPage &&
+          lastPage.page >= lastPage.totalPages &&
+          lastPage.customers.length < lastPage.limit
+        ) {
+          targetPage = data.pages.length - 1;
+        }
+        return {
+          ...data,
+          pages: data.pages.map((p, index) => {
+            if (index !== targetPage) return { ...p, total: p.total + 1 };
+            const position = p.customers.findIndex(isOlder);
+            const customers = [...p.customers];
+            customers.splice(position === -1 ? customers.length : position, 0, {
+              ...customer,
+              status,
+            });
+            return { ...p, customers, total: p.total + 1 };
+          }),
+        };
+      });
+
       await updateCustomer.mutateAsync({ id: customer.id, organizationId, status });
       toast({
         title: 'Customer moved',
@@ -169,13 +206,18 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
         variant: 'destructive',
       });
     } finally {
-      utils.customers.list.invalidate();
+      movingIdsRef.current.delete(customer.id);
+      setMovingCustomerIds(new Set(movingIdsRef.current));
+      // Refetch the two columns on screen; other lists (e.g. the table) refetch when next shown
+      utils.customers.list.invalidate(undefined, { refetchType: 'none' });
+      utils.customers.list.invalidate(fromInput);
+      utils.customers.list.invalidate(toInput);
       utils.customers.stats.invalidate();
       utils.customers.get.invalidate({ id: customer.id, organizationId });
     }
   };
 
-  return { moveCustomer };
+  return { moveCustomer, movingCustomerIds };
 }
 
 /**

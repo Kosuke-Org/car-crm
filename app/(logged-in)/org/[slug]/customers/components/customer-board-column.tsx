@@ -40,6 +40,7 @@ interface CustomerBoardColumnProps {
   onEdit: (customer: CustomerWithDetails) => void;
   onDelete: (id: string) => void;
   onMove: (move: { customer: CustomerWithDetails; status: CustomerStatus }) => void;
+  movingCustomerIds: ReadonlySet<CustomerWithDetails['id']>;
 }
 
 export function CustomerBoardColumn({
@@ -51,9 +52,17 @@ export function CustomerBoardColumn({
   onEdit,
   onDelete,
   onMove,
+  movingCustomerIds,
 }: CustomerBoardColumnProps) {
-  const { customers, total, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useCustomerBoardColumn({ organizationId, status, searchQuery });
+  const {
+    customers,
+    total,
+    isLoading,
+    isFetching,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useCustomerBoardColumn({ organizationId, status, searchQuery });
 
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -89,6 +98,7 @@ export function CustomerBoardColumn({
               onEdit={onEdit}
               onDelete={onDelete}
               onMove={onMove}
+              isMoving={movingCustomerIds.has(customer.id)}
             />
           ))}
         </div>
@@ -99,7 +109,7 @@ export function CustomerBoardColumn({
           variant="ghost"
           size="sm"
           onClick={fetchNextPage}
-          disabled={isFetchingNextPage}
+          disabled={isFetching}
           className="text-muted-foreground"
         >
           {isFetchingNextPage && <Loader2 className="animate-spin" />}

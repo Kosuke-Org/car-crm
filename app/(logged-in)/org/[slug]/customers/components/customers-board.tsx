@@ -51,7 +51,7 @@ export function CustomersBoard({
   onDelete,
 }: CustomersBoardProps) {
   const [activeCustomer, setActiveCustomer] = useState<CustomerWithDetails | null>(null);
-  const { moveCustomer } = useMoveCustomer({ organizationId, searchQuery });
+  const { moveCustomer, movingCustomerIds } = useMoveCustomer({ organizationId, searchQuery });
 
   // A small movement threshold keeps clicks on links and menus working;
   // the touch delay leaves vertical scrolling to the browser.
@@ -104,6 +104,7 @@ export function CustomersBoard({
               onEdit={onEdit}
               onDelete={onDelete}
               onMove={moveCustomer}
+              movingCustomerIds={movingCustomerIds}
             />
           ))}
         </div>

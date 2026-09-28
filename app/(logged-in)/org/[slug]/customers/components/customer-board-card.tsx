@@ -84,6 +84,8 @@ interface CustomerBoardCardProps {
   onEdit: (customer: CustomerWithDetails) => void;
   onDelete: (id: string) => void;
   onMove: (move: { customer: CustomerWithDetails; status: CustomerStatus }) => void;
+  // True while this customer's previous move is still saving
+  isMoving: boolean;
 }
 
 export function CustomerBoardCard({
@@ -92,10 +94,12 @@ export function CustomerBoardCard({
   onEdit,
   onDelete,
   onMove,
+  isMoving,
 }: CustomerBoardCardProps) {
   const { setNodeRef, listeners, isDragging } = useDraggable({
     id: customer.id,
     data: { customer },
+    disabled: isMoving,
   });
 
   return (
@@ -103,7 +107,8 @@ export function CustomerBoardCard({
       ref={setNodeRef}
       {...listeners}
       className={cn(
-        'cursor-grab touch-manipulation gap-2 px-3 py-3 select-none',
+        'touch-manipulation gap-2 px-3 py-3 select-none',
+        isMoving ? 'cursor-progress' : 'cursor-grab',
         isDragging && 'opacity-40'
       )}
     >
@@ -134,7 +139,10 @@ export function CustomerBoardCard({
               Edit
             </DropdownMenuItem>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger
+                disabled={isMoving}
+                className="data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+              >
                 <ArrowRightLeft className="text-muted-foreground mr-2 size-4" />
                 Move to
               </DropdownMenuSubTrigger>
