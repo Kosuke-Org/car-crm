@@ -76,11 +76,19 @@ export function CustomersBoardColumn({
       ref={setNodeRef}
       className={cn(
         'bg-muted/40 flex w-72 shrink-0 flex-col rounded-lg border p-2 transition-colors',
-        isOver && 'bg-muted border-primary/40'
+        status === 'inactive' && 'bg-destructive/10 border-destructive/30',
+        isOver && (status === 'inactive' ? 'bg-destructive/20' : 'bg-muted border-primary/40')
       )}
     >
       <div className="flex items-center justify-between px-1 pt-1 pb-3">
-        <Badge variant="outline" className={statusColors[status]}>
+        <Badge
+          variant="outline"
+          className={
+            status === 'inactive'
+              ? 'bg-destructive/10 text-destructive border-destructive/30'
+              : statusColors[status]
+          }
+        >
           {label}
         </Badge>
         <span className="text-muted-foreground text-xs font-medium">{displayTotal}</span>
