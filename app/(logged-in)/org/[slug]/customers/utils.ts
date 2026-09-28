@@ -2,6 +2,8 @@
  * Customer utilities
  * Shared constants and helper functions for the customers feature
  */
+import { differenceInCalendarDays } from 'date-fns';
+
 import type { CustomerStatus } from '@/lib/types';
 
 export const statusOptions: { value: CustomerStatus; label: string }[] = [
@@ -18,3 +20,14 @@ export const statusColors: Record<CustomerStatus, string> = {
   inactive:
     'bg-chart-1/10 text-chart-1 border-chart-1/20 dark:bg-chart-5/10 dark:text-chart-5 dark:border-chart-5/20',
 };
+
+export function getDaysSinceLastContact(lastContactedAt: Date | null, now = new Date()) {
+  if (!lastContactedAt) return null;
+  return Math.max(0, differenceInCalendarDays(now, lastContactedAt));
+}
+
+export function getLastContactTone(days: number | null) {
+  if (days === null || days < 14) return 'neutral';
+  if (days < 30) return 'warning';
+  return 'destructive';
+}

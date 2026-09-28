@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { statusColors } from '../utils';
+import { getDaysSinceLastContact, getLastContactTone, statusColors } from '../utils';
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type CustomerWithDetails = RouterOutput['customers']['list']['customers'][number];
@@ -133,7 +133,33 @@ export function getCustomerColumns(
           onSort={() => onSort('lastContactedAt')}
         />
       ),
-      cell: ({ row }) => formatDate(row.original.lastContactedAt),
+      cell: ({ row }) => {
+        const lastContactedAt = row.original.lastContactedAt;
+        const days = getDaysSinceLastContact(lastContactedAt);
+        const tone = getLastContactTone(days);
+
+        return (
+          <div className="flex items-center gap-2">
+            {lastContactedAt && <span>{formatDate(lastContactedAt)}</span>}
+            <Badge
+              variant={
+                tone === 'destructive'
+                  ? 'destructive'
+                  : tone === 'warning'
+                    ? 'outline'
+                    : 'secondary'
+              }
+              className={
+                tone === 'warning'
+                  ? 'border-brand-accent bg-brand-accent/20 text-foreground'
+                  : undefined
+              }
+            >
+              {days === null ? 'Never' : `${days} ${days === 1 ? 'day' : 'days'}`}
+            </Badge>
+          </div>
+        );
+      },
     },
     {
       id: 'actions',
