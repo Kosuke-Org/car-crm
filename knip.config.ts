@@ -1,5 +1,6 @@
 const knipConfig = {
   $schema: 'https://unpkg.com/knip@latest/schema.json',
+  entry: ['lib/db/scripts/crm-seed.ts'],
   ignore: [
     'proxy.ts',
     // Shadcn/UI components or custom registries are part of the template
