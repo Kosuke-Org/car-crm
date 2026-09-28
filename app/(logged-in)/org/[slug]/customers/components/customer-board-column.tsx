@@ -31,6 +31,24 @@ export function CustomerBoardColumnSkeleton() {
   );
 }
 
+interface ColumnLoadErrorProps {
+  message: string;
+  onRetry: () => void;
+  isRetrying: boolean;
+}
+
+function ColumnLoadError({ message, onRetry, isRetrying }: ColumnLoadErrorProps) {
+  return (
+    <div role="alert" className="flex flex-col items-center gap-2 py-4 text-center">
+      <p className="text-destructive text-sm">{message}</p>
+      <Button variant="outline" size="sm" onClick={onRetry} disabled={isRetrying}>
+        {isRetrying && <Loader2 className="animate-spin" />}
+        {isRetrying ? 'Retrying...' : 'Retry'}
+      </Button>
+    </div>
+  );
+}
+
 interface CustomerBoardColumnProps {
   organizationId: string;
   organizationSlug: string;
@@ -59,9 +77,12 @@ export function CustomerBoardColumn({
     total,
     isLoading,
     isFetching,
+    isError,
+    isLoadingError,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+    refetch,
   } = useCustomerBoardColumn({ organizationId, status, searchQuery });
 
   const { setNodeRef, isOver } = useDroppable({ id: status });
@@ -81,28 +102,40 @@ export function CustomerBoardColumn({
     >
       <div className="flex items-center gap-2">
         <Badge className={statusColors[status]}>{label}</Badge>
-        <span className="text-muted-foreground text-sm tabular-nums">{total}</span>
+        {!isLoadingError && (
+          <span className="text-muted-foreground text-sm tabular-nums">{total}</span>
+        )}
       </div>
 
-      {customers.length === 0 ? (
-        <p className="text-muted-foreground py-8 text-center text-sm">
-          {searchQuery ? 'No matching customers' : 'No customers'}
-        </p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {customers.map((customer) => (
-            <CustomerBoardCard
-              key={customer.id}
-              customer={customer}
-              customerHref={`/org/${organizationSlug}/customers/${customer.id}`}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onMove={onMove}
-              isMoving={movingCustomerIds.has(customer.id)}
-            />
-          ))}
-        </div>
+      {/* A failed refresh keeps the last loaded cards on screen, with a way to retry */}
+      {isError && (
+        <ColumnLoadError
+          message={isLoadingError ? 'Could not load customers.' : 'Could not refresh customers.'}
+          onRetry={refetch}
+          isRetrying={isFetching}
+        />
       )}
+
+      {!isLoadingError &&
+        (customers.length === 0 ? (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            {searchQuery ? 'No matching customers' : 'No customers'}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {customers.map((customer) => (
+              <CustomerBoardCard
+                key={customer.id}
+                customer={customer}
+                customerHref={`/org/${organizationSlug}/customers/${customer.id}`}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onMove={onMove}
+                isMoving={movingCustomerIds.has(customer.id)}
+              />
+            ))}
+          </div>
+        ))}
 
       {hasNextPage && (
         <Button

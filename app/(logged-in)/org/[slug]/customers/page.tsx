@@ -93,6 +93,9 @@ export default function OrgCustomersPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithDetails | null>(null);
+  // New key on every open: the form reads its values only on mount, and a board move can
+  // change the status of the same customer between two opens
+  const [editDialogKey, setEditDialogKey] = useState(0);
   const [customerToDeleteId, setCustomerToDeleteId] = useState<string | null>(null);
 
   const trimmedSearch = searchValue.trim() || undefined;
@@ -141,6 +144,7 @@ export default function OrgCustomersPage() {
   const handleEditClick = (customer: CustomerWithDetails | undefined) => {
     if (!customer) return;
     setSelectedCustomer(customer);
+    setEditDialogKey((key) => key + 1);
     setEditDialogOpen(true);
   };
 
@@ -259,7 +263,7 @@ export default function OrgCustomersPage() {
 
       {/* Edit Customer Dialog */}
       <CustomerDialog
-        key={selectedCustomer?.id}
+        key={editDialogKey}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onSubmit={async (values) => {

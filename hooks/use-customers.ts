@@ -77,15 +77,24 @@ export function useCustomerBoardColumn(params: {
   status: CustomerStatus;
   searchQuery?: string;
 }) {
-  const { data, isLoading, isFetching, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    trpc.customers.list.useInfiniteQuery(getBoardColumnInput(params), {
-      staleTime: 1000 * 60 * 2, // 2 minutes
-      placeholderData: (previousData) => previousData,
-      enabled: !!params.organizationId,
-      initialCursor: 1,
-      getNextPageParam: (lastPage) =>
-        lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
-    });
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    isLoadingError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = trpc.customers.list.useInfiniteQuery(getBoardColumnInput(params), {
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    placeholderData: (previousData) => previousData,
+    enabled: !!params.organizationId,
+    initialCursor: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+  });
 
   const pages = data?.pages ?? [];
   // Offset pages can overlap while customers move between columns; keep each card once
@@ -96,10 +105,15 @@ export function useCustomerBoardColumn(params: {
     total: pages[0]?.total ?? 0,
     isLoading,
     isFetching,
+    // A request failed after retries. With isLoadingError no page ever arrived, so
+    // `customers` and `total` are unknown; otherwise the last loaded pages stay usable.
+    isError,
+    isLoadingError,
     hasNextPage,
     isFetchingNextPage,
     // Never cancel a running refetch: the next page would build on the optimistic first page
     fetchNextPage: () => fetchNextPage({ cancelRefetch: false }),
+    refetch: () => refetch(),
   };
 }
 

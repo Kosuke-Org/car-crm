@@ -161,6 +161,54 @@ describe('useCustomerBoardColumn', () => {
     result.current.fetchNextPage();
     expect(fetchNextPage).toHaveBeenCalledWith({ cancelRefetch: false });
   });
+
+  it('reports a column that never loaded and retries it', () => {
+    const refetch = vi.fn();
+    (trpc.customers.list.useInfiniteQuery as Mock).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      isLoadingError: true,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+      fetchNextPage: vi.fn(),
+      refetch,
+    });
+
+    const { result } = renderHook(() => useCustomerBoardColumn({ organizationId, status: 'lead' }));
+
+    expect(result.current.isError).toBe(true);
+    expect(result.current.isLoadingError).toBe(true);
+    expect(result.current.customers).toEqual([]);
+
+    // Called as a click handler: the event must not reach refetch as its options
+    (result.current.refetch as (...args: unknown[]) => unknown)({ type: 'click' });
+    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(refetch).toHaveBeenCalledWith();
+  });
+
+  it('keeps the loaded cards and total when a later request fails', () => {
+    const a = makeCustomer('a', 'lead');
+    (trpc.customers.list.useInfiniteQuery as Mock).mockReturnValue({
+      data: { pages: [makePage([a], { total: 21, totalPages: 2 })] },
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      isLoadingError: false,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      fetchNextPage: vi.fn(),
+      refetch: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useCustomerBoardColumn({ organizationId, status: 'lead' }));
+
+    expect(result.current.isError).toBe(true);
+    expect(result.current.isLoadingError).toBe(false);
+    expect(result.current.customers.map((customer) => customer.id)).toEqual(['a']);
+    expect(result.current.total).toBe(21);
+  });
 });
 
 describe('useMoveCustomer', () => {
