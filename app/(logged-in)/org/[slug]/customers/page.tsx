@@ -40,7 +40,7 @@ import { CustomerBoardColumnSkeleton } from './components/customer-board-column'
 import { CustomerDialog } from './components/customer-dialog';
 import { CustomersBoard } from './components/customers-board';
 import { CustomersDataTable } from './components/customers-data-table';
-import { statusOptions } from './utils';
+import { getChangedCustomerFields, statusOptions } from './utils';
 
 function CustomersPageSkeleton() {
   return (
@@ -152,6 +152,20 @@ export default function OrgCustomersPage() {
     setCustomerToDeleteId(id);
     setDeleteDialogOpen(true);
   };
+
+  const editInitialValues = selectedCustomer
+    ? {
+        firstName: selectedCustomer.firstName,
+        lastName: selectedCustomer.lastName,
+        email: selectedCustomer.email,
+        phone: selectedCustomer.phone ?? undefined,
+        city: selectedCustomer.city ?? undefined,
+        status: selectedCustomer.status,
+        interestedInModel: selectedCustomer.interestedInModel ?? undefined,
+        lastContactedAt: selectedCustomer.lastContactedAt ?? undefined,
+        notes: selectedCustomer.notes ?? undefined,
+      }
+    : undefined;
 
   if (isLoadingOrg || !activeOrganization) {
     return <CustomersPageSkeleton />;
@@ -267,29 +281,20 @@ export default function OrgCustomersPage() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onSubmit={async (values) => {
-          if (!selectedCustomer) return;
+          if (!selectedCustomer || !editInitialValues) return;
+
+          // Send only what the member changed: the row the form opened with can predate a
+          // board move, and resending its status would undo that move
+          const changes = getChangedCustomerFields({ initialValues: editInitialValues, values });
+          if (Object.keys(changes).length === 0) return;
 
           await updateCustomer({
             id: selectedCustomer.id,
             organizationId: activeOrganization.id,
-            ...values,
+            ...changes,
           });
         }}
-        initialValues={
-          selectedCustomer
-            ? {
-                firstName: selectedCustomer.firstName,
-                lastName: selectedCustomer.lastName,
-                email: selectedCustomer.email,
-                phone: selectedCustomer.phone ?? undefined,
-                city: selectedCustomer.city ?? undefined,
-                status: selectedCustomer.status,
-                interestedInModel: selectedCustomer.interestedInModel ?? undefined,
-                lastContactedAt: selectedCustomer.lastContactedAt ?? undefined,
-                notes: selectedCustomer.notes ?? undefined,
-              }
-            : undefined
-        }
+        initialValues={editInitialValues}
         mode="edit"
         isSubmitting={isUpdating}
       />

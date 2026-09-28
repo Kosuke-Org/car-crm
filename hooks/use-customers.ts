@@ -5,8 +5,10 @@
 
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
+import { type Mutation, useMutationState, useQueryClient } from '@tanstack/react-query';
+import { getMutationKey } from '@trpc/react-query';
 import type { inferRouterInputs } from '@trpc/server';
 
 import { trpc } from '@/lib/trpc/client';
@@ -24,6 +26,14 @@ type CustomerListFilters = RouterInput['customers']['list'];
 type DeleteCustomerInput = RouterInput['customers']['delete'];
 
 const BOARD_COLUMN_PAGE_SIZE = 20;
+
+// Shared by every customers.update in the app (board moves and the edit dialog), so pending
+// updates can be read from the QueryClient's mutation cache, which outlives the board
+const updateCustomerMutationKey = getMutationKey(trpc.customers.update);
+
+function getUpdatedCustomerId(mutation: Mutation) {
+  return (mutation.state.variables as Partial<UpdateCustomerInput> | undefined)?.id;
+}
 
 /**
  * Query input for one board column. Shared by the column query and the optimistic
@@ -120,19 +130,33 @@ export function useCustomerBoardColumn(params: {
 /**
  * Hook for moving a customer between board columns. Updates both columns
  * optimistically and rolls back if the server rejects the change.
- * A customer cannot move again until its previous move settles, because the
- * update has no version check and an older request could finish last.
+ * A customer cannot move while any update of it is pending (a move or an edit, from
+ * this board or one unmounted since), because the update has no version check and
+ * an older request could finish last.
  */
 export function useMoveCustomer(params: { organizationId: string; searchQuery?: string }) {
   const { organizationId, searchQuery } = params;
   const { toast } = useToast();
   const utils = trpc.useUtils();
+  const queryClient = useQueryClient();
   const updateCustomer = trpc.customers.update.useMutation();
-  // The ref blocks a second move in the same tick; the state re-renders the locked cards
+  // A move reaches the mutation cache only after the column cancels settle;
+  // the ref blocks a second move of the same customer before then
   const movingIdsRef = useRef(new Set<CustomerWithDetails['id']>());
-  const [movingCustomerIds, setMovingCustomerIds] = useState<
-    ReadonlySet<CustomerWithDetails['id']>
-  >(() => new Set());
+  const pendingUpdateIds = useMutationState({
+    filters: { mutationKey: updateCustomerMutationKey, status: 'pending' },
+    select: getUpdatedCustomerId,
+  });
+  const movingCustomerIds: ReadonlySet<CustomerWithDetails['id']> = new Set(
+    pendingUpdateIds.filter((id) => id !== undefined)
+  );
+
+  const hasPendingUpdate = (id: CustomerWithDetails['id']) =>
+    movingIdsRef.current.has(id) ||
+    queryClient.isMutating({
+      mutationKey: updateCustomerMutationKey,
+      predicate: (mutation) => getUpdatedCustomerId(mutation) === id,
+    }) > 0;
 
   const moveCustomer = async ({
     customer,
@@ -141,10 +165,9 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
     customer: CustomerWithDetails;
     status: CustomerStatus;
   }) => {
-    if (customer.status === status || movingIdsRef.current.has(customer.id)) return;
+    if (customer.status === status || hasPendingUpdate(customer.id)) return;
 
     movingIdsRef.current.add(customer.id);
-    setMovingCustomerIds(new Set(movingIdsRef.current));
 
     const fromInput = getBoardColumnInput({
       organizationId,
@@ -221,11 +244,21 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
       });
     } finally {
       movingIdsRef.current.delete(customer.id);
-      setMovingCustomerIds(new Set(movingIdsRef.current));
-      // Refetch the two columns on screen; other lists (e.g. the table) refetch when next shown
+      // Mark every list stale, then refetch the ones on screen that can hold the customer:
+      // its old or new column under any search, and any table whose status filter is empty
+      // or includes either status. A fetch already running on one of those restarts, as it
+      // may have read the customer before the write; columns of other statuses keep theirs.
+      const movedStatuses = [customer.status, status];
       utils.customers.list.invalidate(undefined, { refetchType: 'none' });
-      utils.customers.list.invalidate(fromInput);
-      utils.customers.list.invalidate(toInput);
+      utils.customers.list.invalidate(
+        { organizationId },
+        {
+          predicate: (query) => {
+            const statuses = query.queryKey[1]?.input?.statuses;
+            return !statuses?.length || movedStatuses.some((s) => statuses.includes(s));
+          },
+        }
+      );
       utils.customers.stats.invalidate();
       utils.customers.get.invalidate({ id: customer.id, organizationId });
     }

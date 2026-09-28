@@ -1,7 +1,10 @@
 /**
  * Tests for the customer board hooks in use-customers
  */
-import { act, renderHook } from '@testing-library/react';
+import type { ReactNode } from 'react';
+
+import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { type Mock, vi } from 'vitest';
 
 import { trpc } from '@/lib/trpc/client';
@@ -37,6 +40,8 @@ vi.mock('@/lib/trpc/client', () => ({
       },
       update: {
         useMutation: vi.fn(),
+        // Read by getMutationKey, as on the real tRPC proxy
+        _def: () => ({ path: ['customers', 'update'] }),
       },
     },
     useUtils: () => mockUtils,
@@ -44,6 +49,9 @@ vi.mock('@/lib/trpc/client', () => ({
 }));
 
 const organizationId = '22222222-2222-4222-8222-222222222222';
+
+// The mutation key tRPC gives every customers.update
+const updateMutationKey = [['customers', 'update']];
 
 function makeCustomer(
   id: string,
@@ -213,29 +221,44 @@ describe('useCustomerBoardColumn', () => {
 
 describe('useMoveCustomer', () => {
   const customer = makeCustomer('a', 'lead');
-  let mutateAsync: Mock;
+  // Stands in for the customers.update request
+  let updateRequest: Mock;
+  let queryClient: QueryClient;
+
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mutateAsync = vi.fn().mockResolvedValue({ ...customer, status: 'prospect' });
-    (trpc.customers.update.useMutation as Mock).mockReturnValue({ mutateAsync });
+    queryClient = new QueryClient();
+    updateRequest = vi.fn().mockResolvedValue({ ...customer, status: 'prospect' });
+    // A real mutation under tRPC's key, so pending updates land in the mutation cache
+    (trpc.customers.update.useMutation as Mock).mockImplementation(() =>
+      useMutation({
+        mutationKey: updateMutationKey,
+        mutationFn: (input: unknown) => updateRequest(input),
+      })
+    );
   });
 
   it('does nothing when the customer is dropped on its own column', async () => {
-    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
 
     await act(() => result.current.moveCustomer({ customer, status: 'lead' }));
 
-    expect(mutateAsync).not.toHaveBeenCalled();
+    expect(updateRequest).not.toHaveBeenCalled();
     expect(mockUtils.customers.list.setInfiniteData).not.toHaveBeenCalled();
   });
 
   it('moves the card between both column caches and saves only the status', async () => {
-    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }), {
+      wrapper,
+    });
 
     await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
 
-    expect(mutateAsync).toHaveBeenCalledWith({ id: 'a', organizationId, status: 'prospect' });
+    expect(updateRequest).toHaveBeenCalledWith({ id: 'a', organizationId, status: 'prospect' });
 
     const [[fromInput, removeFromSource], [toInput]] =
       mockUtils.customers.list.setInfiniteData.mock.calls;
@@ -259,7 +282,7 @@ describe('useMoveCustomer', () => {
     const moved = makeCustomer('a', 'lead', '2026-02-15');
 
     async function getTargetUpdater() {
-      const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+      const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
       await act(() => result.current.moveCustomer({ customer: moved, status: 'prospect' }));
       return mockUtils.customers.list.setInfiniteData.mock.calls[1][1];
     }
@@ -355,32 +378,87 @@ describe('useMoveCustomer', () => {
     });
   });
 
-  it('cancels and refetches only the two columns it changes', async () => {
-    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }));
+  it('cancels only the two columns it changes', async () => {
+    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }), {
+      wrapper,
+    });
 
     await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
 
-    const { cancel, invalidate } = mockUtils.customers.list;
+    const { cancel } = mockUtils.customers.list;
     expect(cancel).toHaveBeenCalledTimes(2);
     expect(cancel).toHaveBeenCalledWith(boardInput('lead', 'jane'));
     expect(cancel).toHaveBeenCalledWith(boardInput('prospect', 'jane'));
+  });
 
-    expect(invalidate).toHaveBeenCalledTimes(3);
-    expect(invalidate).toHaveBeenCalledWith(undefined, { refetchType: 'none' });
-    expect(invalidate).toHaveBeenCalledWith(boardInput('lead', 'jane'));
-    expect(invalidate).toHaveBeenCalledWith(boardInput('prospect', 'jane'));
+  it('refetches every list on screen that can hold the customer, under any search', async () => {
+    const { result } = renderHook(() => useMoveCustomer({ organizationId, searchQuery: 'jane' }), {
+      wrapper,
+    });
+
+    await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
+
+    const { invalidate } = mockUtils.customers.list;
+    expect(invalidate).toHaveBeenCalledTimes(2);
+    // Every other list is only marked stale
+    expect(invalidate).toHaveBeenNthCalledWith(1, undefined, { refetchType: 'none' });
+    const [input, filters, options] = invalidate.mock.calls[1];
+    expect(input).toEqual({ organizationId });
+    // Restart a fetch already running: it may have read the customer before the write
+    expect(options?.cancelRefetch).not.toBe(false);
+
+    // Apply the filters to tRPC-shaped keys, as utils.customers.list.invalidate does
+    const listKey = (listInput: object, type: 'infinite' | 'query') => [
+      ['customers', 'list'],
+      { input: listInput, type },
+    ];
+    const keys = {
+      leadJane: listKey(boardInput('lead', 'jane'), 'infinite'),
+      prospectJane: listKey(boardInput('prospect', 'jane'), 'infinite'),
+      // The search changed while the move was saving
+      leadDoe: listKey(boardInput('lead', 'doe'), 'infinite'),
+      prospectDoe: listKey(boardInput('prospect', 'doe'), 'infinite'),
+      activeDoe: listKey(boardInput('active', 'doe'), 'infinite'),
+      table: listKey({ organizationId, searchQuery: 'doe', page: 1, limit: 10 }, 'query'),
+      tableNoFilter: listKey({ organizationId, statuses: [], page: 1, limit: 10 }, 'query'),
+      tableWithTarget: listKey({ organizationId, statuses: ['active', 'prospect'] }, 'query'),
+      tableOtherStatuses: listKey({ organizationId, statuses: ['active', 'inactive'] }, 'query'),
+      otherOrganization: listKey(
+        { ...boardInput('lead', 'jane'), organizationId: '33333333-3333-4333-8333-333333333333' },
+        'infinite'
+      ),
+    };
+    Object.values(keys).forEach((key) => queryClient.setQueryData(key, {}));
+
+    const matched = queryClient
+      .getQueryCache()
+      .findAll({ ...filters, queryKey: [['customers', 'list'], { input }] })
+      .map((query) => query.queryKey);
+
+    expect(matched).toHaveLength(7);
+    expect(matched).toEqual(
+      expect.arrayContaining([
+        keys.leadJane,
+        keys.prospectJane,
+        keys.leadDoe,
+        keys.prospectDoe,
+        keys.table,
+        keys.tableNoFilter,
+        keys.tableWithTarget,
+      ])
+    );
   });
 
   it('blocks another move of the same customer until the first one settles', async () => {
     let resolveFirst: (value: unknown) => void = () => {};
-    mutateAsync.mockImplementationOnce(
+    updateRequest.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
           resolveFirst = resolve;
         })
     );
     const other = makeCustomer('b', 'lead');
-    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
 
     let firstMove: Promise<void> = Promise.resolve();
     await act(async () => {
@@ -389,39 +467,96 @@ describe('useMoveCustomer', () => {
       await result.current.moveCustomer({ customer, status: 'active' });
     });
 
-    expect(result.current.movingCustomerIds.has('a')).toBe(true);
-    expect(mutateAsync).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(result.current.movingCustomerIds.has('a')).toBe(true));
+    expect(updateRequest).toHaveBeenCalledTimes(1);
 
     // After the first request is sent, the card is still locked
     const movedCustomer = { ...customer, status: 'prospect' as const };
     await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
-    expect(mutateAsync).toHaveBeenCalledTimes(1);
+    expect(updateRequest).toHaveBeenCalledTimes(1);
 
     // Other customers stay movable
     await act(() => result.current.moveCustomer({ customer: other, status: 'active' }));
-    expect(mutateAsync).toHaveBeenCalledTimes(2);
-    expect(mutateAsync).toHaveBeenLastCalledWith({ id: 'b', organizationId, status: 'active' });
+    expect(updateRequest).toHaveBeenCalledTimes(2);
+    expect(updateRequest).toHaveBeenLastCalledWith({ id: 'b', organizationId, status: 'active' });
 
     await act(async () => {
       resolveFirst({ ...customer, status: 'prospect' });
       await firstMove;
     });
 
-    expect(result.current.movingCustomerIds.has('a')).toBe(false);
+    await waitFor(() => expect(result.current.movingCustomerIds.has('a')).toBe(false));
     await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
-    expect(mutateAsync).toHaveBeenCalledTimes(3);
-    expect(mutateAsync).toHaveBeenLastCalledWith({ id: 'a', organizationId, status: 'active' });
+    expect(updateRequest).toHaveBeenCalledTimes(3);
+    expect(updateRequest).toHaveBeenLastCalledWith({ id: 'a', organizationId, status: 'active' });
+  });
+
+  it('keeps the customer locked when the board remounts while its move saves', async () => {
+    let resolveFirst: (value: unknown) => void = () => {};
+    updateRequest.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFirst = resolve;
+        })
+    );
+    const other = makeCustomer('b', 'lead');
+    const firstBoard = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
+
+    let firstMove: Promise<void> = Promise.resolve();
+    await act(async () => {
+      firstMove = firstBoard.result.current.moveCustomer({ customer, status: 'prospect' });
+    });
+    await waitFor(() => expect(updateRequest).toHaveBeenCalledTimes(1));
+
+    // Switching to the table and back mounts a new board
+    firstBoard.unmount();
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
+    expect(result.current.movingCustomerIds.has('a')).toBe(true);
+
+    const movedCustomer = { ...customer, status: 'prospect' as const };
+    await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
+    expect(updateRequest).toHaveBeenCalledTimes(1);
+
+    // Other customers stay movable
+    await act(() => result.current.moveCustomer({ customer: other, status: 'active' }));
+    expect(updateRequest).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      resolveFirst({ ...customer, status: 'prospect' });
+      await firstMove;
+    });
+
+    await waitFor(() => expect(result.current.movingCustomerIds.has('a')).toBe(false));
+    await act(() => result.current.moveCustomer({ customer: movedCustomer, status: 'active' }));
+    expect(updateRequest).toHaveBeenCalledTimes(3);
+    expect(updateRequest).toHaveBeenLastCalledWith({ id: 'a', organizationId, status: 'active' });
+  });
+
+  it('blocks a move while another update of the same customer is saving', async () => {
+    // An edit dialog save, under the same tRPC key
+    const edit = queryClient.getMutationCache().build(queryClient, {
+      mutationKey: updateMutationKey,
+      mutationFn: () => new Promise(() => {}),
+    });
+    void edit.execute({ id: 'a', organizationId, phone: '+1 555 0100' });
+
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
+    expect(result.current.movingCustomerIds.has('a')).toBe(true);
+
+    await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
+    expect(updateRequest).not.toHaveBeenCalled();
+    expect(mockUtils.customers.list.setInfiniteData).not.toHaveBeenCalled();
   });
 
   it('unlocks the customer when the save fails', async () => {
-    mutateAsync.mockRejectedValueOnce(new Error('Customer not found'));
-    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+    updateRequest.mockRejectedValueOnce(new Error('Customer not found'));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
 
     await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
     expect(result.current.movingCustomerIds.size).toBe(0);
 
     await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
-    expect(mutateAsync).toHaveBeenCalledTimes(2);
+    expect(updateRequest).toHaveBeenCalledTimes(2);
   });
 
   it('restores both columns and shows an error when the save fails', async () => {
@@ -430,9 +565,9 @@ describe('useMoveCustomer', () => {
     mockUtils.customers.list.getInfiniteData
       .mockReturnValueOnce(previousFrom)
       .mockReturnValueOnce(previousTo);
-    mutateAsync.mockRejectedValue(new Error('Customer not found'));
+    updateRequest.mockRejectedValue(new Error('Customer not found'));
 
-    const { result } = renderHook(() => useMoveCustomer({ organizationId }));
+    const { result } = renderHook(() => useMoveCustomer({ organizationId }), { wrapper });
 
     await act(() => result.current.moveCustomer({ customer, status: 'prospect' }));
 

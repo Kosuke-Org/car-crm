@@ -8,7 +8,7 @@ export type { NotificationSettings } from './user';
 
 // Customer-related types
 export type { CustomerStatus } from '@/lib/db/schema';
-export type { CustomerWithDetails } from './customers';
+export type { CustomerChanges, CustomerWithDetails } from './customers';
 
 // Order-related types
 export type {
