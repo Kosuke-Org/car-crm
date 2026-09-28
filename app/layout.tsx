@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 
@@ -18,62 +18,60 @@ const geistMono = Geist_Mono({
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://template.kosuke.ai';
 const ogImage = `${baseUrl}/opengraph-image.png`;
-const ogImageSquare = `${baseUrl}/og-image-square.png`;
+const ogImageSquare = `${baseUrl}/opengraph-image-square.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    template: '%s | Kosuke Template',
-    default: 'Kosuke Template',
+    template: '%s | AutoYard',
+    default: 'AutoYard - CRM for car dealerships',
   },
   description:
-    'Production-ready Next.js template with auth, billing, database, and deployment. Skip the boilerplate and ship features fast.',
+    'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday. CRM for car retail, from one pitch to twenty rooftops.',
   keywords: [
-    'Next.js',
-    'React',
-    'TypeScript',
-    'Tailwind CSS',
-    'Better Auth',
-    'PostgreSQL',
-    'Drizzle ORM',
-    'Vercel',
-    'Starter Template',
-    'Boilerplate',
+    'car dealership CRM',
+    'automotive CRM',
+    'dealer management',
+    'vehicle inventory software',
+    'car sales software',
+    'lead management',
+    'test drive scheduling',
+    'used car dealer software',
   ],
-  authors: [{ name: 'Kosuke Template' }],
-  creator: 'Kosuke Template',
-  publisher: 'Kosuke Template',
+  authors: [{ name: 'AutoYard' }],
+  creator: 'AutoYard',
+  publisher: 'AutoYard',
   openGraph: {
-    title: 'Kosuke Template - Production-Ready Next.js Starter',
+    title: 'AutoYard - CRM for car dealerships',
     description:
-      'Production-ready Next.js template with auth, billing, database, and deployment. Skip the boilerplate and ship features fast.',
+      'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     type: 'website',
     images: [
       {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'Kosuke Template - Production-Ready Next.js Starter',
+        alt: 'AutoYard - CRM for car dealerships',
       },
       {
         url: ogImageSquare,
         width: 500,
         height: 500,
-        alt: 'Kosuke Template - Production-Ready Next.js Starter',
+        alt: 'AutoYard - CRM for car dealerships',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kosuke Template - Production-Ready Next.js Starter',
+    title: 'AutoYard - CRM for car dealerships',
     description:
-      'Production-ready Next.js template with auth, billing, database, and deployment. Skip the boilerplate and ship features fast.',
+      'Every enquiry answered before it goes cold. Leads, stock, test drives and part-ex on one list built for car retail.',
     images: [
       {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: 'Kosuke Template - Production-Ready Next.js Starter',
+        alt: 'AutoYard - CRM for car dealerships',
       },
     ],
   },
@@ -99,12 +97,17 @@ export const metadata: Metadata = {
       url: '/apple-touch-icon.png',
     },
   ],
+  manifest: '/manifest.webmanifest',
   verification: {
     // Add when you have these set up:
     // google: 'your-google-verification-code',
     // yandex: 'your-yandex-verification-code',
     // bing: 'your-bing-verification-code',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#005f63',
 };
 
 export default function RootLayout({

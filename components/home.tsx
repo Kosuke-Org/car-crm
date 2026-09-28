@@ -3,42 +3,104 @@
 import Link from 'next/link';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Code2, Database, Lock, Rocket, Sparkles, Star, Zap } from 'lucide-react';
+import { ArrowRight, Rocket } from 'lucide-react';
 
-import { TechLogo } from '@/app/(logged-out)/home/components/tech-card';
-import { technologies } from '@/app/(logged-out)/home/data/technologies';
+import { cn } from '@/lib/utils';
 
 import { useOrganization } from '@/hooks/use-organization';
 import { useUser } from '@/hooks/use-user';
 
-import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-const coreFeatures = [
+const todaysLeads = [
   {
-    icon: Code2,
-    title: 'Next.js 16 + React 19',
-    description: 'Latest App Router with Server Components, Suspense, and streaming.',
-    metrics: '~3s build time',
+    name: 'Aisha R.',
+    vehicle: '2019 Golf GTI · 42k',
+    meta: 'Autotrader · 6 min ago',
+    status: 'Needs a reply',
+    tone: 'bg-chart-2/15 text-chart-2',
   },
   {
-    icon: Lock,
-    title: 'Auth & Security',
-    description: 'Better Auth integration with middleware protection and user management.',
-    metrics: 'SOC 2 compliant',
+    name: 'Tom B.',
+    vehicle: '2021 Kuga ST-Line',
+    meta: 'Website form · yesterday',
+    status: 'Test drive Sat 10:30',
+    tone: 'bg-chart-1/10 text-chart-1',
   },
   {
-    icon: Database,
-    title: 'Database & ORM',
-    description: 'Drizzle ORM with PostgreSQL, migrations, and type safety.',
-    metrics: 'Type-safe queries',
+    name: 'Rehan M.',
+    vehicle: '2020 A3 Sportback',
+    meta: 'Part-ex quote sent',
+    status: 'Waiting on buyer',
+    tone: 'bg-muted text-muted-foreground',
   },
   {
-    icon: Zap,
-    title: 'Billing Ready',
-    description: 'Stripe integration for subscriptions, webhooks, and payments.',
-    metrics: 'PCI compliant',
+    name: 'Lauren D.',
+    vehicle: '2018 Civic 1.0 VTEC',
+    meta: 'Finance approved',
+    status: 'Handover Thu',
+    tone: 'bg-chart-3/15 text-chart-3',
+  },
+];
+
+const replaced = [
+  'The sales@ inbox three people half-watch',
+  'The stock spreadsheet that is always one price behind',
+  'The whiteboard of this weekend’s test drives',
+  'The Monday report somebody rebuilds by hand',
+];
+
+const capabilities = [
+  {
+    title: 'One queue for every enquiry',
+    body: 'Portals, website forms, WhatsApp, missed calls and walk-ins land in one list, stamped with the car the buyer was looking at. The response clock starts the second it arrives.',
+    wide: true,
+  },
+  {
+    title: 'Stock that stays honest',
+    body: 'VIN decode, recon status, photo sets and days on lot. Change a price once and the portals follow.',
+  },
+  {
+    title: 'Test drives in the diary',
+    body: 'Buyers pick a slot themselves. The car is prepped, fuelled and out front when they turn up.',
+  },
+  {
+    title: 'Part-ex and paperwork on one record',
+    body: 'Valuation, finance quote and order form sit with the deal, signed from a phone on the floor.',
+  },
+  {
+    title: 'Numbers per rooftop',
+    body: 'Gross per unit, source ROI and aged stock, by site and by salesperson, without exporting anything.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'Does it replace our DMS?',
+    answer:
+      'No. AutoYard covers everything up to the signature. Signed deals push into your DMS, and accounting, service and parts stay where they are.',
+  },
+  {
+    question: 'How long until we are actually using it?',
+    answer:
+      'A single site is usually running the same week. Groups take longer, mostly waiting on portal credentials.',
+  },
+  {
+    question: 'We advertise on several portals. Does that still work?',
+    answer:
+      'Yes. Listings go out and leads come back on the major marketplaces and your own site. Price changes in one place.',
+  },
+  {
+    question: 'Is it worth it for two salespeople?',
+    answer:
+      'That is most of our customers. Small pitches feel it first — nobody is spare to chase a mailbox on a Saturday.',
   },
 ];
 
@@ -48,374 +110,225 @@ export function Home() {
 
   const dashboardUrl = organization ? `/org/${organization.slug}/dashboard` : '/';
 
+  const primaryCta = user ? (
+    <Button size="lg" className="w-full sm:w-auto" asChild>
+      <Link href={dashboardUrl}>
+        <Rocket className="mr-2 h-4 w-4" />
+        Go to dashboard
+      </Link>
+    </Button>
+  ) : (
+    <Button size="lg" className="w-full sm:w-auto" asChild>
+      <Link href="/sign-up">
+        Start a 14-day trial
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Link>
+    </Button>
+  );
+
   return (
     <div className="bg-background min-h-screen w-full pt-[60px]">
-      {/* Hero Section - Terminal First */}
-      <section className="px-4 pt-12 pb-16 sm:px-6 sm:pt-20 sm:pb-32">
-        <div className="container mx-auto max-w-6xl">
-          {/* Main headline */}
+      <section className="from-accent/60 bg-gradient-to-b to-transparent px-4 pt-16 pb-14 sm:px-6 sm:pt-24 sm:pb-20">
+        <div className="container mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-20">
           <motion.div
-            className="mb-8 text-center sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
+            className="min-w-0"
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Badge
-                variant="outline"
-                className="relative mb-4 cursor-default overflow-hidden px-2 py-1 text-xs sm:mb-6 sm:px-3"
-              >
-                {/* Shine effect */}
-                <motion.div
-                  className="absolute inset-0 -top-1 -bottom-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '200%' }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: 'easeInOut',
-                  }}
-                />
-                <Sparkles className="mr-1 h-3 w-3" />
-                Production Ready
-              </Badge>
-            </motion.div>
+            <p className="text-primary mb-5 text-sm font-medium tracking-wide">
+              One pitch or twenty rooftops
+            </p>
 
-            <h1 className="mb-4 px-2 text-3xl leading-tight font-bold tracking-tight sm:mb-6 sm:text-5xl lg:text-7xl">
-              Skip the boilerplate
-              <br />
-              Ship features
+            <h1 className="max-w-xl text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
+              The definitive CRM for your dealership
             </h1>
 
-            <p className="text-muted-foreground mx-auto mb-6 max-w-2xl px-2 font-sans text-base sm:mb-8 sm:text-lg lg:text-xl">
-              Production-ready Next.js template with auth, billing, database, and deployment.
+            <p className="text-muted-foreground mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
+              Leads, stock, test drives and part-ex on one list your whole floor works from — so no
+              enquiry goes cold.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              {primaryCta}
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link href="/sign-in">See it on your own stock</Link>
+              </Button>
+            </div>
+
+            <p className="text-muted-foreground mt-4 max-w-md text-sm leading-relaxed">
+              Import from your DMS or a CSV on day one. No card needed.
             </p>
           </motion.div>
 
-          {/* CTA Buttons */}
           <motion.div
-            className="flex flex-col items-center justify-center gap-3 px-2 sm:flex-row sm:gap-4"
+            className="min-w-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            {user ? (
-              // Logged-in user CTAs
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <Link href={dashboardUrl}>
-                  <Rocket className="mr-2 h-4 w-4" />
-                  Go to Dashboard
-                </Link>
-              </Button>
-            ) : (
-              // Logged-out user CTAs
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                  <Rocket className="mr-2 h-4 w-4" />
-                  git clone kosuke
-                </Link>
-              </Button>
-            )}
-
-            <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-              <Link href="https://github.com/Kosuke-Org/kosuke-template#readme" target="_blank">
-                <Code2 className="mr-2 h-4 w-4" />
-                Documentation
-              </Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Core Features */}
-      <section className="bg-background py-12 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="mb-12 text-center sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # Everything you need
-            </h2>
-            <p className="text-muted-foreground mx-auto max-w-2xl px-2 font-sans text-base sm:text-lg">
-              Carefully chosen technologies that work together seamlessly
-            </p>
-          </motion.div>
-
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-            {coreFeatures.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <Card className="h-full py-4 transition-colors">
-                  <CardContent className="py-0">
-                    <div className="mb-3 flex items-start justify-between sm:mb-4">
-                      <div className="bg-muted text-muted-foreground rounded-lg p-2">
-                        <feature.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {feature.metrics}
-                      </Badge>
-                    </div>
-
-                    <h3 className="mb-2 text-lg font-semibold sm:mb-3 sm:text-xl">
-                      {feature.title}
-                    </h3>
-
-                    <p className="text-muted-foreground font-sans text-sm leading-relaxed sm:text-base">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Tech Stack - Minimal Grid */}
-      <section className="py-24 sm:py-48">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="mb-12 text-center sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # built with
-            </h2>
-          </motion.div>
-
-          <motion.div
-            className="mx-auto grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-8 md:grid-cols-7"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {technologies.map((tech, index) => (
-              <motion.div
-                key={index}
-                className="group flex cursor-pointer flex-col items-center"
-                whileHover={{ y: -2 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                <div className="bg-card/30 border-border/30 rounded-lg border p-2 transition-all duration-300 sm:p-3">
-                  <TechLogo name={tech.name} logoPath={tech.logoPath} url={tech.url} size="md" />
+            <Card>
+              <CardContent className="space-y-5">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <p className="text-sm font-medium">Today · Kingsway Motors</p>
+                  <p className="text-muted-foreground text-xs">4 waiting · longest 11 min</p>
                 </div>
-                <span className="text-muted-foreground group-hover:text-foreground mt-2 text-center text-xs transition-colors">
-                  {tech.name.toLowerCase()}
-                </span>
-              </motion.div>
-            ))}
+
+                <ul className="space-y-4">
+                  {todaysLeads.map((lead) => (
+                    <li
+                      key={lead.name}
+                      className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {lead.name} <span className="text-muted-foreground">·</span>{' '}
+                          {lead.vehicle}
+                        </p>
+                        <p className="text-muted-foreground mt-0.5 text-xs">{lead.meta}</p>
+                      </div>
+                      <span
+                        className={cn(
+                          'w-fit shrink-0 rounded-md px-2 py-1 text-xs font-medium',
+                          lead.tone
+                        )}
+                      >
+                        {lead.status}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="text-muted-foreground border-t pt-4 text-sm">
+                  Average days on lot <span className="text-foreground font-medium">24</span>, down
+                  from 39 since March.
+                </p>
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
       </section>
 
-      {/* Bento Grid Features */}
-      <section className="bg-background py-12 sm:py-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            className="mb-12 text-center sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-3 text-2xl font-bold sm:mb-4 sm:text-3xl lg:text-4xl">
-              # Why developers choose this
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_1fr] md:gap-20">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              One list instead of five tabs
             </h2>
-            <p className="text-muted-foreground mx-auto max-w-2xl px-2 font-sans text-base sm:text-lg">
-              Every component designed for speed, security, and scale
+            <p className="text-muted-foreground mt-5 text-base leading-relaxed">
+              Forecourts rarely lose deals on price. They lose them in the gap between an enquiry
+              arriving and somebody picking it up.
             </p>
-          </motion.div>
+          </div>
 
-          <div className="mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {/* Large feature card */}
-              <motion.div
-                className="lg:col-span-2 lg:row-span-2"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <Card className="bg-card border-border hover:bg-card/80 h-full border p-6 transition-all duration-300 sm:p-8">
-                  <CardContent className="flex h-full flex-col justify-between p-0">
-                    <div>
-                      <div className="mb-4 flex items-center gap-3 sm:mb-6">
-                        <div className="bg-muted rounded-lg p-2">
-                          <Rocket className="text-foreground h-5 w-5 sm:h-6 sm:w-6" />
-                        </div>
-                        <h3 className="text-lg font-semibold sm:text-xl">Ship in Minutes</h3>
-                      </div>
-                      <p className="text-muted-foreground mb-4 font-sans text-sm leading-relaxed sm:mb-6 sm:text-base">
-                        Complete full-stack application with authentication, database, billing, and
-                        deployment. Everything integrated and configured - just clone and ship.
-                      </p>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Clone to Deploy</span>
-                        <span className="text-foreground">&lt; 5 min</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Auth + DB + Billing</span>
-                        <span className="text-foreground">✓ Included</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Production Ready</span>
-                        <span className="text-foreground">Day 1</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <ul className="space-y-3 self-center">
+            {replaced.map((item) => (
+              <li key={item} className="text-muted-foreground flex gap-3 text-base">
+                <span aria-hidden className="bg-chart-2 mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-              {/* Auth card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <Card className="bg-card/50 border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                      <Lock className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                      <h3 className="text-base font-semibold sm:text-lg">Secure Auth</h3>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Better Auth integration with passwordless authentication and organization
-                      management.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Database card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Card className="bg-card/50 border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                      <Database className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                      <h3 className="text-base font-semibold sm:text-lg">Type-Safe DB</h3>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Drizzle ORM with PostgreSQL. Migrations, relations, and full TypeScript
-                      support.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Billing card */}
-              <motion.div
-                className="md:col-span-2"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <Card className="bg-card border-border hover:bg-card/80 h-full border p-4 transition-all duration-300 sm:p-6">
-                  <CardContent className="p-0">
-                    <div className="mb-3 flex items-center justify-between sm:mb-4">
-                      <div className="flex items-center gap-2">
-                        <Rocket className="text-foreground h-4 w-4 sm:h-5 sm:w-5" />
-                        <h3 className="text-base font-semibold sm:text-lg">Revenue Ready</h3>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        Stripe
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground font-sans text-sm">
-                      Complete subscription management with webhooks, usage tracking, and analytics.
-                      Start monetizing from day one.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
+      <section className="bg-accent/40 px-4 py-16 sm:px-6 sm:py-24">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
+            {capabilities.map((item) => (
+              <div key={item.title} className={cn(item.wide && 'md:col-span-2 md:max-w-3xl')}>
+                <h3
+                  className={cn(
+                    'font-semibold tracking-tight',
+                    item.wide ? 'text-2xl sm:text-3xl' : 'text-lg'
+                  )}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className={cn(
+                    'text-muted-foreground mt-3 leading-relaxed',
+                    item.wide ? 'text-base sm:text-lg' : 'text-sm'
+                  )}
+                >
+                  {item.body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="bg-background px-4 py-16 sm:px-6 sm:py-32">
-        <div className="container mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl lg:text-5xl">
-              Ready to ship?
-            </h2>
+      <section className="px-4 py-16 sm:px-6 sm:py-24">
+        <figure className="container mx-auto max-w-3xl">
+          <blockquote className="text-xl leading-relaxed font-medium text-balance sm:text-2xl">
+            “Weekend enquiries used to sit nine hours before anyone replied. They are minutes now.”
+          </blockquote>
+          <figcaption className="text-muted-foreground mt-6 text-sm">
+            Marta Ferrante — general manager, Ferrante Auto Group
+          </figcaption>
+        </figure>
+      </section>
 
-            <p className="text-muted-foreground mb-8 px-2 font-sans text-base sm:mb-12 sm:text-lg">
-              Join developers building the next generation of web applications
+      <section className="px-4 pb-16 sm:px-6 sm:pb-24">
+        <div className="container mx-auto grid max-w-5xl gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            What dealers ask before signing
+          </h2>
+
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq) => (
+              <AccordionItem key={faq.question} value={faq.question}>
+                <AccordionTrigger className="text-left text-base">{faq.question}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      <section className="px-4 pb-16 sm:px-6 sm:pb-24">
+        <div className="bg-primary text-primary-foreground container mx-auto max-w-6xl rounded-lg px-6 py-14 sm:px-14 sm:py-20">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+              There is an enquiry waiting right now
+            </h2>
+            <p className="text-primary-foreground/80 mt-4 text-base sm:text-lg">
+              Import your stock and answer it from AutoYard today.
             </p>
 
-            <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {user ? (
-                // Logged-in user final CTA
-                <>
-                  <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href={dashboardUrl}>
-                      <Rocket className="mr-2 h-4 w-4" />
-                      Go to Dashboard
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                    <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                      <Star className="mr-2 h-4 w-4" />
-                      Star on GitHub
-                    </Link>
-                  </Button>
-                </>
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
+                  <Link href={dashboardUrl}>
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Go to dashboard
+                  </Link>
+                </Button>
               ) : (
-                // Logged-out user final CTA
-                <>
-                  <Button size="lg" className="w-full sm:w-auto" asChild>
-                    <Link href="https://github.com/Kosuke-Org/kosuke-template" target="_blank">
-                      <Star className="mr-2 h-4 w-4" />
-                      Star on GitHub
-                    </Link>
-                  </Button>
-
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-                    <Link
-                      href="https://github.com/Kosuke-Org/kosuke-template/blob/main/cli/README.md"
-                      target="_blank"
-                    >
-                      Setup Guide
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </>
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
+                  <Link href="/sign-up">
+                    Start a 14-day trial
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               )}
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground w-full bg-transparent sm:w-auto"
+                asChild
+              >
+                <Link href="/sign-in">Talk to someone who sold cars</Link>
+              </Button>
             </div>
-          </motion.div>
+
+            <p className="text-brand-accent mt-6 text-sm">
+              Not a DMS. Not accounting. Just the part where you sell the car.
+            </p>
+          </div>
         </div>
       </section>
     </div>

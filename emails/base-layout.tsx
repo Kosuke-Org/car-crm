@@ -27,7 +27,7 @@ export function BaseLayout({ preview, children }: BaseLayoutProps) {
             <Section className="rounded-xl bg-white p-10 shadow-lg">
               {/* Header */}
               <Section className="mb-10 text-center">
-                <Text className="m-0 mb-2 text-3xl font-black text-stone-900">Kosuke Template</Text>
+                <Text className="m-0 mb-2 text-3xl font-black text-[#005f63]">AutoYard</Text>
               </Section>
 
               {/* Main Content */}
@@ -40,13 +40,13 @@ export function BaseLayout({ preview, children }: BaseLayoutProps) {
                   Need help getting started? We&apos;re here to help!
                 </Text>
                 <Text className="mb-6 text-sm text-stone-500">
-                  <Link href="#" className="mx-3 text-stone-900 no-underline">
+                  <Link href="#" className="mx-3 text-[#005f63] no-underline">
                     Documentation
                   </Link>
-                  <Link href="#" className="mx-3 text-stone-900 no-underline">
+                  <Link href="#" className="mx-3 text-[#005f63] no-underline">
                     Support
                   </Link>
-                  <Link href="#" className="mx-3 text-stone-900 no-underline">
+                  <Link href="#" className="mx-3 text-[#005f63] no-underline">
                     Community
                   </Link>
                 </Text>

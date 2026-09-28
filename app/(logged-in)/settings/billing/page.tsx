@@ -194,10 +194,10 @@ export default function BillingPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { variant: 'default' as const, color: 'bg-green-500' },
-      canceled: { variant: 'destructive' as const, color: 'bg-red-500' },
-      past_due: { variant: 'destructive' as const, color: 'bg-yellow-500' },
-      unpaid: { variant: 'destructive' as const, color: 'bg-red-500' },
+      active: { variant: 'default' as const },
+      canceled: { variant: 'destructive' as const },
+      past_due: { variant: 'destructive' as const },
+      unpaid: { variant: 'destructive' as const },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || {
@@ -322,17 +322,15 @@ export default function BillingPage() {
 
           {/* Pending Downgrade Alert */}
           {subscriptionInfo?.activeSubscription?.scheduledDowngradeTier && (
-            <div className="rounded-lg border border-yellow-500 bg-yellow-50 p-4 dark:bg-yellow-950">
+            <div className="border-chart-2/40 bg-chart-2/10 rounded-lg border p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <div>
                     <h4 className="flex items-center gap-2 font-medium">
-                      <Calendar className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                      <span className="text-yellow-800 dark:text-yellow-200">
-                        Scheduled Downgrade
-                      </span>
+                      <Calendar className="text-chart-2 h-4 w-4" />
+                      <span className="text-chart-2">Scheduled Downgrade</span>
                     </h4>
-                    <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                    <p className="text-muted-foreground mt-1 text-sm">
                       Your subscription will downgrade to{' '}
                       <strong>
                         {pricingData[subscriptionInfo.activeSubscription.scheduledDowngradeTier]
@@ -352,7 +350,7 @@ export default function BillingPage() {
                           disabled={isCancelingDowngrade || !isOwner}
                           variant="outline"
                           size="sm"
-                          className="shrink-0 border-yellow-600 text-yellow-800 hover:bg-yellow-100 dark:border-yellow-500 dark:text-yellow-200 dark:hover:bg-yellow-900"
+                          className="border-chart-2/40 text-chart-2 hover:bg-chart-2/10 hover:text-chart-2 shrink-0"
                         >
                           {isCancelingDowngrade ? (
                             <>
@@ -386,7 +384,7 @@ export default function BillingPage() {
             <ul className="space-y-1">
               {currentPlan.features.map((feature, index) => (
                 <li key={index} className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="text-chart-3 h-4 w-4" />
                   {feature.name}
                 </li>
               ))}
@@ -409,7 +407,7 @@ export default function BillingPage() {
                             disabled={isReactivating || !isOwner}
                             variant="default"
                             size="sm"
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-chart-3 hover:bg-chart-3/90 text-primary-foreground"
                           >
                             {isReactivating ? (
                               <>
@@ -532,10 +530,7 @@ export default function BillingPage() {
                           )}
                           {isCurrentPlan && <Badge>Current Plan</Badge>}
                           {isScheduledDowngrade && (
-                            <Badge
-                              variant="outline"
-                              className="border-yellow-500 text-yellow-700 dark:text-yellow-400"
-                            >
+                            <Badge variant="outline" className="border-chart-2/40 text-chart-2">
                               Scheduled
                             </Badge>
                           )}
@@ -549,7 +544,7 @@ export default function BillingPage() {
                         <ul className="flex-1 space-y-2">
                           {plan.features.map((feature, index) => (
                             <li key={index} className="flex items-center gap-2 text-sm">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              <CheckCircle className="text-chart-3 h-4 w-4" />
                               {feature.name}
                             </li>
                           ))}

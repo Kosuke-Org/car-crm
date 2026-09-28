@@ -18,7 +18,7 @@ export default function InvitationEmail({
         <Text className="mt-0 mb-6 text-xl font-medium">
           {inviter.user.name} invited you to join {organization.name}
         </Text>
-        <Button href={inviteLink} className="mb-6 rounded-md bg-stone-900 px-4 py-2 text-white">
+        <Button href={inviteLink} className="mb-6 rounded-md bg-[#005f63] px-4 py-2 text-white">
           Accept Invitation
         </Button>
         <Text className="m-0 text-center text-stone-500">

@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Bell, CreditCard, Monitor, Shield, User } from 'lucide-react';
+import { Bell, CreditCard, Shield, User } from 'lucide-react';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -26,12 +26,6 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
             <Link href="/settings">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Account</span>
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="appearance" className="flex items-center gap-2" asChild>
-            <Link href="/settings/appearance">
-              <Monitor className="h-4 w-4" />
-              <span className="hidden sm:inline">Appearance</span>
             </Link>
           </TabsTrigger>
           <TabsTrigger value="billing" className="flex items-center gap-2" asChild>

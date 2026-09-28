@@ -1,7 +1,5 @@
 'use client';
 
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { CreditCard, LogOut, Menu, Settings, Shield, User } from 'lucide-react';
@@ -10,12 +8,11 @@ import { cn } from '@/lib/utils';
 
 import { useAuth } from '@/hooks/use-auth';
 import { useAuthActions } from '@/hooks/use-auth';
-import { useClient } from '@/hooks/use-client';
 import { useOrganization } from '@/hooks/use-organization';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useUserAvatar } from '@/hooks/use-user-avatar';
 
-import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +24,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 interface NavbarProps {
   variant?: 'standard' | 'transparent';
@@ -39,14 +43,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
   const { profileImageUrl, initials, displayName, primaryEmail } = useUserAvatar();
   const { signOut: handleSignOut } = useAuthActions();
   const { isAdmin } = usePermissions();
-  const { theme } = useTheme();
-  const { isClient } = useClient();
   const { organization: activeOrganization } = useOrganization();
-  const logoUrl = isClient
-    ? theme === 'dark'
-      ? '/logos/logo-dark.svg'
-      : '/logos/logo.svg'
-    : '/logos/logo-dark.svg';
 
   const dashboardUrl = activeOrganization ? `/org/${activeOrganization.slug}/dashboard` : '/';
   const settingsUrl = '/settings';
@@ -62,8 +59,8 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
       )}
     >
       <div className="container flex h-10 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <Image src={logoUrl} alt="Kosuke Template" width={160} height={28} />
+        <Link href="/" aria-label="AutoYard home">
+          <Logo />
         </Link>
 
         {/* Desktop navigation */}
@@ -137,12 +134,10 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
               </Link>
             </div>
           )}
-          <ThemeToggle />
         </nav>
 
         {/* Mobile navigation */}
         <div className="flex items-center gap-3 md:hidden">
-          <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -152,6 +147,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Sidebar</SheetTitle>
+              <SheetDescription className="sr-only">AutoYard navigation</SheetDescription>
               <nav className="mt-10 flex flex-col gap-4 px-4">
                 {isSignedIn ? (
                   // Mobile navigation for logged-in users
@@ -197,7 +193,7 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
                       </Link>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full justify-start"
                         onClick={() => handleSignOut()}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -208,14 +204,18 @@ export default function Navbar({ variant = 'standard', className }: NavbarProps)
                 ) : (
                   // Mobile navigation for logged-out users
                   <>
-                    <Link href="/sign-in">
-                      <Button variant="ghost" className="w-full justify-start">
-                        Log in
-                      </Button>
-                    </Link>
-                    <Link href="/sign-up">
-                      <Button className="w-full">Sign up</Button>
-                    </Link>
+                    <SheetClose asChild>
+                      <Link href="/sign-in">
+                        <Button variant="ghost" className="w-full justify-start">
+                          Log in
+                        </Button>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/sign-up">
+                        <Button className="w-full">Sign up</Button>
+                      </Link>
+                    </SheetClose>
                   </>
                 )}
               </nav>

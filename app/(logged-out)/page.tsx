@@ -17,33 +17,31 @@ const HomepageStructuredData = () => {
   const websiteData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Kosuke Template',
+    name: 'AutoYard',
     description:
-      'Production-ready Next.js template with auth, billing, database, and deployment. Skip the boilerplate and ship features fast.',
+      'AutoYard keeps leads, stock, test drives and part-ex on one list, so no enquiry sits in a shared inbox until Monday.',
     url: baseUrl,
-    sameAs: ['https://github.com/Kosuke-Org/kosuke-template'],
   };
 
   const softwareData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Kosuke Template',
-    applicationCategory: 'DeveloperApplication',
+    name: 'AutoYard',
+    applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web Browser',
     description:
-      'Production-ready Next.js template with authentication, billing, database, and deployment features built-in.',
+      'CRM for car retail, covering enquiry follow-up, vehicle stock, test drive booking, part-ex and order paperwork, and per-rooftop reporting.',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
+      description: '14-day free trial',
     },
     author: {
       '@type': 'Organization',
-      name: 'Kosuke Template',
+      name: 'AutoYard',
+      logo: `${baseUrl}/logos/autoyard-logo.svg`,
     },
-    programmingLanguage: ['TypeScript', 'JavaScript', 'React'],
-    runtimePlatform: 'Node.js',
-    codeRepository: 'https://github.com/Kosuke-Org/kosuke-template',
   };
 
   return (
