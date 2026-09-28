@@ -1,25 +1,20 @@
 /**
  * Organization Customers Page
- * Dealership customer pipeline with server-side filtering, search, pagination, and sorting
+ * Dealership customer pipeline as a kanban board grouped by status
  */
 
 'use client';
 
 import { useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { Download, Loader2, Plus, Search } from 'lucide-react';
 
-import { Plus } from 'lucide-react';
+import { exportTypeEnum } from '@/lib/trpc/schemas/customers';
+import { cn } from '@/lib/utils';
 
-import type { CustomerStatus } from '@/lib/types';
-
-import { useCustomerActions, useCustomersList } from '@/hooks/use-customers';
+import { useCustomerActions } from '@/hooks/use-customers';
 import { useOrganization } from '@/hooks/use-organization';
-import { useTableFilters } from '@/hooks/use-table-filters';
-import { useTablePagination } from '@/hooks/use-table-pagination';
-import { useTableRowSelection } from '@/hooks/use-table-row-selection';
 import { useTableSearch } from '@/hooks/use-table-search';
-import { useTableSorting } from '@/hooks/use-table-sorting';
 
 import {
   AlertDialog,
@@ -32,10 +27,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import type { BoardCustomer } from './components/customer-card';
 import { CustomerDialog } from './components/customer-dialog';
-import { CustomersDataTable } from './components/customers-data-table';
+import { CustomersBoard } from './components/customers-board';
 
 function CustomersPageSkeleton() {
   return (
@@ -44,16 +42,17 @@ function CustomersPageSkeleton() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-6 w-96" />
       </div>
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-[400px] w-full" />
+      <Skeleton className="h-10 w-full max-w-lg" />
+      <div className="flex gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[400px] w-72 shrink-0" />
+        ))}
       </div>
     </div>
   );
 }
 
 export default function OrgCustomersPage() {
-  const router = useRouter();
   const { organization: activeOrganization, isLoading: isLoadingOrg } = useOrganization();
 
   const { inputValue, searchValue, setSearchValue } = useTableSearch({
@@ -61,38 +60,10 @@ export default function OrgCustomersPage() {
     debounceMs: 300,
   });
 
-  const { sortBy, sortOrder, handleSort } = useTableSorting<
-    'createdAt' | 'lastName' | 'lastContactedAt'
-  >({
-    initialSortBy: 'createdAt',
-    initialSortOrder: 'desc',
-  });
-
-  const { page, pageSize, setPage, setPageSize, goToFirstPage } = useTablePagination({
-    initialPage: 1,
-    initialPageSize: 10,
-  });
-
-  const { filters, updateFilter, resetFilters } = useTableFilters({
-    selectedStatuses: [] as CustomerStatus[],
-  });
-
-  const rowSelection = useTableRowSelection();
-
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-
-  const { customers, total, totalPages, isLoading } = useCustomersList({
-    organizationId: activeOrganization?.id ?? '',
-    statuses: filters.selectedStatuses.length > 0 ? filters.selectedStatuses : undefined,
-    searchQuery: searchValue.trim() || undefined,
-    page,
-    limit: pageSize,
-    sortBy,
-    sortOrder,
-  });
+  const [selectedCustomer, setSelectedCustomer] = useState<BoardCustomer | null>(null);
 
   const {
     createCustomer,
@@ -105,36 +76,24 @@ export default function OrgCustomersPage() {
     isExporting,
   } = useCustomerActions();
 
-  const handleClearFilters = () => {
-    resetFilters();
-    goToFirstPage();
-  };
-
-  const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
-
   const handleDeleteCustomer = async () => {
-    if (!selectedCustomerId || !activeOrganization) return;
-    await deleteCustomer({ id: selectedCustomerId, organizationId: activeOrganization.id });
+    if (!selectedCustomer || !activeOrganization) return;
+    await deleteCustomer({ id: selectedCustomer.id, organizationId: activeOrganization.id });
     setDeleteDialogOpen(false);
-    setSelectedCustomerId(null);
+    setSelectedCustomer(null);
   };
 
-  const handleViewClick = (id: string) => {
-    if (!activeOrganization) return;
-    router.push(`/org/${activeOrganization.slug}/customers/${id}`);
-  };
-
-  const handleEditClick = (id: string) => {
-    setSelectedCustomerId(id);
+  const handleEditClick = (customer: BoardCustomer) => {
+    setSelectedCustomer(customer);
     setEditDialogOpen(true);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setSelectedCustomerId(id);
+  const handleDeleteClick = (customer: BoardCustomer) => {
+    setSelectedCustomer(customer);
     setDeleteDialogOpen(true);
   };
 
-  if (isLoadingOrg || (isLoading && page === 1) || !activeOrganization) {
+  if (isLoadingOrg || !activeOrganization) {
     return <CustomersPageSkeleton />;
   }
 
@@ -145,7 +104,8 @@ export default function OrgCustomersPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Manage leads, prospects and buyers for your dealership
+            Manage leads, prospects and buyers for your dealership. Drag a card to change its
+            status.
           </p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
@@ -154,47 +114,53 @@ export default function OrgCustomersPage() {
         </Button>
       </div>
 
-      {/* Customers DataTable */}
-      <CustomersDataTable
-        customers={customers}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        totalPages={totalPages}
-        isLoading={isLoading}
-        // Filter props
-        searchQuery={inputValue}
-        selectedStatuses={filters.selectedStatuses}
-        // Sorting props
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSearchChange={setSearchValue}
-        onStatusesChange={(statuses) => {
-          updateFilter('selectedStatuses', statuses);
-          goToFirstPage();
-        }}
-        onClearFilters={handleClearFilters}
-        onSortChange={handleSort}
-        // Pagination handlers
-        onPageChange={setPage}
-        onPageSizeChange={setPageSize}
-        // Action handlers
-        onView={handleViewClick}
+      {/* Toolbar */}
+      <div className="flex items-center gap-3">
+        <div className="relative w-full sm:w-[400px] lg:w-[500px]">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            placeholder="Search by name, email, phone or model..."
+            value={inputValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="ml-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" disabled={isExporting}>
+                <Loader2 className={cn('hidden animate-spin', isExporting && 'block')} />
+                <Download className={cn('block', isExporting && 'hidden')} />
+                Export
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-30 p-2" align="end">
+              {exportTypeEnum.options.map((type) => (
+                <Button
+                  key={type}
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => exportCustomers({ type, organizationId: activeOrganization.id })}
+                  disabled={isExporting}
+                >
+                  {type.toUpperCase()}
+                </Button>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      {/* Kanban Board */}
+      <CustomersBoard
+        organizationId={activeOrganization.id}
+        organizationSlug={activeOrganization.slug}
+        searchQuery={searchValue.trim() || undefined}
+        onStatusChange={({ customer, status }) =>
+          updateCustomer({ id: customer.id, organizationId: activeOrganization.id, status })
+        }
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
-        // Export handler
-        onExport={(type) => {
-          exportCustomers({ type, organizationId: activeOrganization.id });
-        }}
-        isExporting={isExporting}
-        selectedRowIds={rowSelection.selectedRowIds}
-        onRowSelectionChange={rowSelection.setSelectedRowIds}
-        onBulkDelete={async (ids) => {
-          for (const id of ids) {
-            await deleteCustomer({ id, organizationId: activeOrganization.id });
-          }
-          rowSelection.clearSelection();
-        }}
       />
 
       {/* Create Customer Dialog */}
@@ -217,10 +183,10 @@ export default function OrgCustomersPage() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onSubmit={async (values) => {
-          if (!selectedCustomerId) return;
+          if (!selectedCustomer) return;
 
           await updateCustomer({
-            id: selectedCustomerId,
+            id: selectedCustomer.id,
             organizationId: activeOrganization.id,
             ...values,
           });
