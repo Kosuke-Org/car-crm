@@ -6,10 +6,9 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import type { inferRouterOutputs } from '@trpc/server';
 import { Edit, Eye, MoreHorizontal, Trash } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
+import type { CustomerWithDetails } from '@/lib/types';
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
@@ -23,9 +22,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { statusColors } from '../utils';
-
-type RouterOutput = inferRouterOutputs<AppRouter>;
-type CustomerWithDetails = RouterOutput['customers']['list']['customers'][number];
 
 export type CustomerSortColumn = 'createdAt' | 'lastName' | 'lastContactedAt';
 

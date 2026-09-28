@@ -14,12 +14,10 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import type { inferRouterOutputs } from '@trpc/server';
 import { Download, Loader2, Search, Trash2, X } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
 import { type ExportType, exportTypeEnum } from '@/lib/trpc/schemas/customers';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { DataTablePagination } from '@/components/data-table/data-table-pagination';
@@ -38,9 +36,6 @@ import {
 
 import { ActiveFilterBadges, CustomerFilters } from './customer-filters';
 import { type CustomerSortColumn, getCustomerColumns } from './customers-columns';
-
-type RouterOutput = inferRouterOutputs<AppRouter>;
-type CustomerWithDetails = RouterOutput['customers']['list']['customers'][number];
 
 interface CustomersDataTableProps {
   customers: CustomerWithDetails[];

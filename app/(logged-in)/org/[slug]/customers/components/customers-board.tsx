@@ -18,11 +18,9 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import type { inferRouterOutputs } from '@trpc/server';
 import { Search } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 
 import { useMoveCustomer } from '@/hooks/use-customers';
 
@@ -32,8 +30,6 @@ import { statusOptions } from '../utils';
 import { CustomerBoardCardPreview } from './customer-board-card';
 import { CustomerBoardColumn } from './customer-board-column';
 
-type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
-
 interface CustomersBoardProps {
   organizationId: string;
   organizationSlug: string;
@@ -41,7 +37,7 @@ interface CustomersBoardProps {
   searchInput: string;
   searchQuery?: string;
   onSearchChange: (query: string) => void;
-  onEdit: (customer: CustomerListItem) => void;
+  onEdit: (customer: CustomerWithDetails) => void;
   onDelete: (id: string) => void;
 }
 
@@ -54,7 +50,7 @@ export function CustomersBoard({
   onEdit,
   onDelete,
 }: CustomersBoardProps) {
-  const [activeCustomer, setActiveCustomer] = useState<CustomerListItem | null>(null);
+  const [activeCustomer, setActiveCustomer] = useState<CustomerWithDetails | null>(null);
   const { moveCustomer } = useMoveCustomer({ organizationId, searchQuery });
 
   // A small movement threshold keeps clicks on links and menus working;
@@ -65,20 +61,16 @@ export function CustomersBoard({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    const customer = event.active.data.current?.customer as CustomerListItem | undefined;
+    const customer = event.active.data.current?.customer as CustomerWithDetails | undefined;
     setActiveCustomer(customer ?? null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveCustomer(null);
-    const customer = event.active.data.current?.customer as CustomerListItem | undefined;
+    const customer = event.active.data.current?.customer as CustomerWithDetails | undefined;
     const targetStatus = event.over?.id as CustomerStatus | undefined;
     if (!customer || !targetStatus) return;
     moveCustomer({ customer, status: targetStatus });
-  };
-
-  const handleMove = (customer: CustomerListItem, status: CustomerStatus) => {
-    moveCustomer({ customer, status });
   };
 
   return (
@@ -111,7 +103,7 @@ export function CustomersBoard({
               searchQuery={searchQuery}
               onEdit={onEdit}
               onDelete={onDelete}
-              onMove={handleMove}
+              onMove={moveCustomer}
             />
           ))}
         </div>

@@ -10,11 +10,9 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import type { inferRouterOutputs } from '@trpc/server';
 import { Kanban, Plus, Table2 } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 
 import { useCustomerActions, useCustomersList } from '@/hooks/use-customers';
 import { useOrganization } from '@/hooks/use-organization';
@@ -43,8 +41,6 @@ import { CustomerDialog } from './components/customer-dialog';
 import { CustomersBoard } from './components/customers-board';
 import { CustomersDataTable } from './components/customers-data-table';
 import { statusOptions } from './utils';
-
-type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
 
 function CustomersPageSkeleton() {
   return (
@@ -96,7 +92,7 @@ export default function OrgCustomersPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerListItem | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithDetails | null>(null);
   const [customerToDeleteId, setCustomerToDeleteId] = useState<string | null>(null);
 
   const trimmedSearch = searchValue.trim() || undefined;
@@ -142,7 +138,7 @@ export default function OrgCustomersPage() {
     router.push(`/org/${activeOrganization.slug}/customers/${id}`);
   };
 
-  const handleEditClick = (customer: CustomerListItem | undefined) => {
+  const handleEditClick = (customer: CustomerWithDetails | undefined) => {
     if (!customer) return;
     setSelectedCustomer(customer);
     setEditDialogOpen(true);

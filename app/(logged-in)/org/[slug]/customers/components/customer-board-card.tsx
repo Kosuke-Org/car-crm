@@ -8,7 +8,6 @@
 import Link from 'next/link';
 
 import { useDraggable } from '@dnd-kit/core';
-import type { inferRouterOutputs } from '@trpc/server';
 import { format } from 'date-fns';
 import {
   ArrowRightLeft,
@@ -20,8 +19,7 @@ import {
   Trash,
 } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -38,10 +36,8 @@ import {
 
 import { statusOptions } from '../utils';
 
-type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
-
 interface CustomerCardDetailsProps {
-  customer: CustomerListItem;
+  customer: CustomerWithDetails;
 }
 
 function CustomerCardDetails({ customer }: CustomerCardDetailsProps) {
@@ -65,7 +61,7 @@ function CustomerCardDetails({ customer }: CustomerCardDetailsProps) {
 }
 
 interface CustomerBoardCardPreviewProps {
-  customer: CustomerListItem;
+  customer: CustomerWithDetails;
 }
 
 /**
@@ -83,11 +79,11 @@ export function CustomerBoardCardPreview({ customer }: CustomerBoardCardPreviewP
 }
 
 interface CustomerBoardCardProps {
-  customer: CustomerListItem;
+  customer: CustomerWithDetails;
   customerHref: string;
-  onEdit: (customer: CustomerListItem) => void;
+  onEdit: (customer: CustomerWithDetails) => void;
   onDelete: (id: string) => void;
-  onMove: (customer: CustomerListItem, status: CustomerStatus) => void;
+  onMove: (move: { customer: CustomerWithDetails; status: CustomerStatus }) => void;
 }
 
 export function CustomerBoardCard({
@@ -148,7 +144,7 @@ export function CustomerBoardCard({
                   .map((option) => (
                     <DropdownMenuItem
                       key={option.value}
-                      onClick={() => onMove(customer, option.value)}
+                      onClick={() => onMove({ customer, status: option.value })}
                     >
                       {option.label}
                     </DropdownMenuItem>

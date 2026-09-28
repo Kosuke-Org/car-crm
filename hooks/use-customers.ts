@@ -5,12 +5,12 @@
 
 'use client';
 
-import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import type { inferRouterInputs } from '@trpc/server';
 
 import { trpc } from '@/lib/trpc/client';
 import type { AppRouter } from '@/lib/trpc/router';
 import type { ExportType } from '@/lib/trpc/schemas/customers';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 import { downloadFile } from '@/lib/utils';
 
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,6 @@ type CreateCustomerInput = RouterInput['customers']['create'];
 type UpdateCustomerInput = RouterInput['customers']['update'];
 type CustomerListFilters = RouterInput['customers']['list'];
 type DeleteCustomerInput = RouterInput['customers']['delete'];
-type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
 
 const BOARD_COLUMN_PAGE_SIZE = 20;
 
@@ -114,7 +113,7 @@ export function useMoveCustomer(params: { organizationId: string; searchQuery?: 
     customer,
     status,
   }: {
-    customer: CustomerListItem;
+    customer: CustomerWithDetails;
     status: CustomerStatus;
   }) => {
     if (customer.status === status) return;

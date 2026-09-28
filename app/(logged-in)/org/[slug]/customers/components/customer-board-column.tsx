@@ -6,11 +6,9 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
-import type { inferRouterOutputs } from '@trpc/server';
 import { Loader2 } from 'lucide-react';
 
-import type { AppRouter } from '@/lib/trpc/router';
-import type { CustomerStatus } from '@/lib/types';
+import type { CustomerStatus, CustomerWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { useCustomerBoardColumn } from '@/hooks/use-customers';
@@ -21,8 +19,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { statusColors } from '../utils';
 import { CustomerBoardCard } from './customer-board-card';
-
-type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
 
 export function CustomerBoardColumnSkeleton() {
   return (
@@ -41,9 +37,9 @@ interface CustomerBoardColumnProps {
   status: CustomerStatus;
   label: string;
   searchQuery?: string;
-  onEdit: (customer: CustomerListItem) => void;
+  onEdit: (customer: CustomerWithDetails) => void;
   onDelete: (id: string) => void;
-  onMove: (customer: CustomerListItem, status: CustomerStatus) => void;
+  onMove: (move: { customer: CustomerWithDetails; status: CustomerStatus }) => void;
 }
 
 export function CustomerBoardColumn({
