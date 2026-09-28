@@ -1,6 +1,7 @@
 /**
  * Organization Customers Page
- * Dealership customer pipeline with server-side filtering, search, pagination, and sorting
+ * Dealership customer pipeline as a status board (default) or a table with
+ * server-side filtering, search, pagination, and sorting
  */
 
 'use client';
@@ -9,8 +10,10 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { Plus } from 'lucide-react';
+import type { inferRouterOutputs } from '@trpc/server';
+import { Kanban, Plus, Table2 } from 'lucide-react';
 
+import type { AppRouter } from '@/lib/trpc/router';
 import type { CustomerStatus } from '@/lib/types';
 
 import { useCustomerActions, useCustomersList } from '@/hooks/use-customers';
@@ -33,9 +36,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
+import { CustomerBoardColumnSkeleton } from './components/customer-board-column';
 import { CustomerDialog } from './components/customer-dialog';
+import { CustomersBoard } from './components/customers-board';
 import { CustomersDataTable } from './components/customers-data-table';
+import { statusOptions } from './utils';
+
+type CustomerListItem = inferRouterOutputs<AppRouter>['customers']['list']['customers'][number];
 
 function CustomersPageSkeleton() {
   return (
@@ -45,8 +54,12 @@ function CustomersPageSkeleton() {
         <Skeleton className="h-6 w-96" />
       </div>
       <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-[400px] w-full" />
+        <Skeleton className="h-10 w-full sm:w-[400px] lg:w-[500px]" />
+        <div className="flex gap-4 overflow-hidden">
+          {statusOptions.map((option) => (
+            <CustomerBoardColumnSkeleton key={option.value} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -79,20 +92,27 @@ export default function OrgCustomersPage() {
 
   const rowSelection = useTableRowSelection();
 
+  const [view, setView] = useState<'board' | 'table'>('board');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerListItem | null>(null);
+  const [customerToDeleteId, setCustomerToDeleteId] = useState<string | null>(null);
 
-  const { customers, total, totalPages, isLoading } = useCustomersList({
-    organizationId: activeOrganization?.id ?? '',
-    statuses: filters.selectedStatuses.length > 0 ? filters.selectedStatuses : undefined,
-    searchQuery: searchValue.trim() || undefined,
-    page,
-    limit: pageSize,
-    sortBy,
-    sortOrder,
-  });
+  const trimmedSearch = searchValue.trim() || undefined;
+
+  const { customers, total, totalPages, isLoading } = useCustomersList(
+    {
+      organizationId: activeOrganization?.id ?? '',
+      statuses: filters.selectedStatuses.length > 0 ? filters.selectedStatuses : undefined,
+      searchQuery: trimmedSearch,
+      page,
+      limit: pageSize,
+      sortBy,
+      sortOrder,
+    },
+    { enabled: view === 'table' }
+  );
 
   const {
     createCustomer,
@@ -110,13 +130,11 @@ export default function OrgCustomersPage() {
     goToFirstPage();
   };
 
-  const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
-
   const handleDeleteCustomer = async () => {
-    if (!selectedCustomerId || !activeOrganization) return;
-    await deleteCustomer({ id: selectedCustomerId, organizationId: activeOrganization.id });
+    if (!customerToDeleteId || !activeOrganization) return;
+    await deleteCustomer({ id: customerToDeleteId, organizationId: activeOrganization.id });
     setDeleteDialogOpen(false);
-    setSelectedCustomerId(null);
+    setCustomerToDeleteId(null);
   };
 
   const handleViewClick = (id: string) => {
@@ -124,17 +142,18 @@ export default function OrgCustomersPage() {
     router.push(`/org/${activeOrganization.slug}/customers/${id}`);
   };
 
-  const handleEditClick = (id: string) => {
-    setSelectedCustomerId(id);
+  const handleEditClick = (customer: CustomerListItem | undefined) => {
+    if (!customer) return;
+    setSelectedCustomer(customer);
     setEditDialogOpen(true);
   };
 
   const handleDeleteClick = (id: string) => {
-    setSelectedCustomerId(id);
+    setCustomerToDeleteId(id);
     setDeleteDialogOpen(true);
   };
 
-  if (isLoadingOrg || (isLoading && page === 1) || !activeOrganization) {
+  if (isLoadingOrg || !activeOrganization) {
     return <CustomersPageSkeleton />;
   }
 
@@ -148,54 +167,85 @@ export default function OrgCustomersPage() {
             Manage leads, prospects and buyers for your dealership
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Customer
-        </Button>
+        <div className="flex items-center gap-2">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={view}
+            onValueChange={(value) => {
+              if (value === 'board' || value === 'table') setView(value);
+            }}
+            aria-label="Customers view"
+          >
+            <ToggleGroupItem value="board" aria-label="Board view" className="gap-2 px-3">
+              <Kanban />
+              Board
+            </ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="Table view" className="gap-2 px-3">
+              <Table2 />
+              Table
+            </ToggleGroupItem>
+          </ToggleGroup>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Customer
+          </Button>
+        </div>
       </div>
 
-      {/* Customers DataTable */}
-      <CustomersDataTable
-        customers={customers}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        totalPages={totalPages}
-        isLoading={isLoading}
-        // Filter props
-        searchQuery={inputValue}
-        selectedStatuses={filters.selectedStatuses}
-        // Sorting props
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSearchChange={setSearchValue}
-        onStatusesChange={(statuses) => {
-          updateFilter('selectedStatuses', statuses);
-          goToFirstPage();
-        }}
-        onClearFilters={handleClearFilters}
-        onSortChange={handleSort}
-        // Pagination handlers
-        onPageChange={setPage}
-        onPageSizeChange={setPageSize}
-        // Action handlers
-        onView={handleViewClick}
-        onEdit={handleEditClick}
-        onDelete={handleDeleteClick}
-        // Export handler
-        onExport={(type) => {
-          exportCustomers({ type, organizationId: activeOrganization.id });
-        }}
-        isExporting={isExporting}
-        selectedRowIds={rowSelection.selectedRowIds}
-        onRowSelectionChange={rowSelection.setSelectedRowIds}
-        onBulkDelete={async (ids) => {
-          for (const id of ids) {
-            await deleteCustomer({ id, organizationId: activeOrganization.id });
-          }
-          rowSelection.clearSelection();
-        }}
-      />
+      {view === 'board' ? (
+        <CustomersBoard
+          organizationId={activeOrganization.id}
+          organizationSlug={activeOrganization.slug}
+          searchInput={inputValue}
+          searchQuery={trimmedSearch}
+          onSearchChange={setSearchValue}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+        />
+      ) : (
+        <CustomersDataTable
+          customers={customers}
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          isLoading={isLoading}
+          // Filter props
+          searchQuery={inputValue}
+          selectedStatuses={filters.selectedStatuses}
+          // Sorting props
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSearchChange={setSearchValue}
+          onStatusesChange={(statuses) => {
+            updateFilter('selectedStatuses', statuses);
+            goToFirstPage();
+          }}
+          onClearFilters={handleClearFilters}
+          onSortChange={handleSort}
+          // Pagination handlers
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          // Action handlers
+          onView={handleViewClick}
+          onEdit={(id) => handleEditClick(customers.find((c) => c.id === id))}
+          onDelete={handleDeleteClick}
+          // Export handler
+          onExport={(type) => {
+            exportCustomers({ type, organizationId: activeOrganization.id });
+          }}
+          isExporting={isExporting}
+          selectedRowIds={rowSelection.selectedRowIds}
+          onRowSelectionChange={rowSelection.setSelectedRowIds}
+          onBulkDelete={async (ids) => {
+            for (const id of ids) {
+              await deleteCustomer({ id, organizationId: activeOrganization.id });
+            }
+            rowSelection.clearSelection();
+          }}
+        />
+      )}
 
       {/* Create Customer Dialog */}
       <CustomerDialog
@@ -217,10 +267,10 @@ export default function OrgCustomersPage() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onSubmit={async (values) => {
-          if (!selectedCustomerId) return;
+          if (!selectedCustomer) return;
 
           await updateCustomer({
-            id: selectedCustomerId,
+            id: selectedCustomer.id,
             organizationId: activeOrganization.id,
             ...values,
           });

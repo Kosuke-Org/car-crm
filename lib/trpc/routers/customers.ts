@@ -26,7 +26,7 @@ export const customersRouter = router({
         organizationId: ctx.organizationId,
         statuses: input?.statuses,
         searchQuery: input?.searchQuery,
-        page: input?.page,
+        page: input?.cursor ?? input?.page,
         limit: input?.limit,
         sortBy: input?.sortBy,
         sortOrder: input?.sortOrder,
